@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../Login/login.css";
 import Home from "../Home/home.jsx"
+import AddEntity from "../AddEntity/addentity.jsx";
 
 function SignUp() {
     const [username, setUsername] = useState("");
@@ -34,7 +35,7 @@ function SignUp() {
     }
 
     if (screen === "Home") {
-        return <Home />
+        return <AddEntity />
     }
 
     return (

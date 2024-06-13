@@ -1,227 +1,293 @@
-import React, { useState } from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Box,
+    Container,
+    Paper,
+    Table,
+    TableBody,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableCell,
+    TablePagination,
+    IconButton,
+    Typography,
+    InputBase,
+    Button
+} from '@mui/material';
+import styled from '@emotion/styled';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import HomeIcon from '@mui/icons-material/Home';
-import PersonIcon from '@mui/icons-material/Person';
-import SettingsIcon from '@mui/icons-material/Settings';
-import MenuIcon from '@mui/icons-material/Menu';
-import Typography from '@mui/material/Typography';
-import { getTable } from '../data';
+import SidePanel from '../SidePanel/SidePanel';
 import AddEntity from '../AddEntity/addentity';
-import { Add } from '@mui/icons-material';
 
-const Container = styled(Box)({
-    display: 'flex',
-    height: '100vh',
-    padding: '15px',
-    justifyContent: 'left',
-    flexDirection: 'column',
-    width: '100%',
-    overflow: 'hidden',
-    alignItems: 'center',
-});
-
-const SidePanel = styled(motion.div)({
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    backgroundColor: '#f4f4f4',
-    boxShadow: '2px 0 2px rgba(0, 0, 0, 0.1)',
-    zIndex: 1000,
-    padding: '20px',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-});
-
-const IconWrapper = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
-    marginBottom: '20px',
-    cursor: 'pointer',
-    transition: 'background-color 0.5s',
-    '&:hover': {
-        backgroundColor: '#B1B0B0'
-    },
-}));
-
-const IconText = styled(Box)({
-    marginLeft: '10px',
-});
-
-const icons = [
-    { icon: <HomeIcon />, label: 'Home' },
-    { icon: <PersonIcon />, label: 'Profile' },
-    { icon: <SettingsIcon />, label: 'Settings' },
+const columns = [
+    { id: 'name', label: 'Name', minWidth: 150 },
+    { id: 'label', label: 'Label', minWidth: 150 },
+    { id: 'type', label: 'Type', minWidth: 150 },
+    { id: 'module', label: 'Module', minWidth: 150 },
 ];
 
-const tableData = getTable()
+function createData(name, label, type, module) {
+    return { name, label, type, module };
+}
 
-const StyledTableCell = styled(TableCell)({
-    border: '1px solid rgba(224, 224, 224, 1)',
-    padding: '8px',
-    width: '500%',
-});
+const rows = [
+    createData('Account', 'Account', 'Entity', 'Sales'),
+    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('Account', 'Account', 'Entity', 'Sales'),
+    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('Account', 'Account', 'Entity', 'Sales'),
+    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('Account', 'Account', 'Entity', 'Sales'),
+    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    createData('NewTask', 'New Task', 'Task', 'Advanced'),
+];
 
-const StyledTable = styled(Table)({
-    width: '4000px',
-});
 
-const TableContainerStyled = styled(TableContainer)({
-    flex: '1',
-    overflowY: 'auto', // Add overflow-y for vertical scrolling
-});
-
-const CommonButton = styled(Button)({
-    marginRight: '0',
-    minWidth: '0',
-    color: '#525252',
-    backgroundColor: 'white',
-    fontFamily: 'sans-serif',
-    fontSize: '14px',
-    height: '30px',
-    padding: '0 12px',
-    border: '2px solid rgba(224, 224, 224, 1)',
-    borderRadius: '4px',
-    display: 'flex',
-    alignItems: 'center',
+const AdministrationText = styled(Button)({
+    color: '#1565C0',
     '&:hover': {
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        textDecoration: 'underline',
+        color: '#1565C0',
     },
 });
 
-function Home() {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [isPanelOpen, setIsPanelOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState(null);
+const StyledTableCell = styled(TableCell)({
+    color: '#613FAA',
+    '&:hover': {
+        textDecoration: 'underline',
+        color: '#1565C0',
+    }
+});
+
+const FixedHeaderTable = styled(Table)({
+    '& thead': {
+        position: 'sticky',
+        top: 0,
+        backgroundColor: '#f4f4f4',
+        zIndex: 1,
+    },
+});
+
+const RightContainer = styled.div(({ sidePanelCollapsed }) => ({
+    display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    flex: '1',
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: '40%',
+}));
+
+const LeftContainer = styled.div(({ sidePanelCollapsed }) => ({
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    width: '20  %',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    border: '2px solid #ececec',
+    margin: '5px',
+    marginLeft: '1.8%',
+}));
+
+const AccountIcon = styled(AccountCircleIcon)({
+    color: '#613FAA',
+    fontSize: '36px',
+});
+
+const MoreIcon = styled(MoreVertIcon)({
+    color: '#613FAA',
+    fontSize: '36px',
+});
+
+const SearchContainer = styled(Box)({
+    display: 'flex',
+    alignItems: 'center',
+    color: "#999999",
+
+});
+
+const SearchInput = styled(InputBase)({
+    borderRadius: '50px',
+    marginRight: '10px',
+    backgroundColor: '#f4f4f4',
+    padding: '5px 10px',
+    border: '1px solid #CCCCCC',
+    color: "#999999",
+    width: "100%"
+
+});
+
+const CreateButton = styled(Button)({
+    border: '2px solid #1565C0',
+    borderRadius: '50px',
+    color: '#1565C0',
+    backgroundColor: 'transparent',
+    '&:hover': {
+        backgroundColor: '#1565C0',
+        color: '#fff',
+    },
+    textTransform: 'capitalize',
+});
+
+const StickyHeadTable = () => {
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
     const [screen, setScreen] = useState("")
+    const sidePanelRef = useRef(null);
 
-    function handleSearchChange(event) {
-        setSearchTerm(event.target.value);
-    }
-
-    const handleMenuClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleClickOutside = (event) => {
+        if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
+            setSidePanelCollapsed(true);
+        }
     };
 
-    const handleMenuClose = () => {
-        setAnchorEl(null);
+    const handleClickOnPanel = () => {
+        setSidePanelCollapsed(false);
     };
 
-    function createEntity() {
-        setScreen("AddEntity")
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    function handleCreateEntity() {
+        setScreen("addentity")
     }
 
-    if (screen === "AddEntity") {
+    if (screen === "addentity") {
         return <AddEntity />
     }
 
     return (
-        <Container>
-            <Box style={{ width: '100%', marginBottom: '20px', textAlign: 'left' }}>
-                <Typography variant="h4" gutterBottom style={{ fontFamily: 'sans-serif' }}>
-                    Entity Manager
-                </Typography>
-            </Box>
-            <AnimatePresence>
-                <SidePanel
-                    initial={{ width: '60px' }}
-                    animate={{ width: isPanelOpen ? '250px' : '60px' }}
-                    exit={{ width: '60px' }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                >
-                    <IconWrapper onClick={() => setIsPanelOpen(!isPanelOpen)}>
-                        <MenuIcon />
-                    </IconWrapper>
-                    {icons.map((item, index) => (
-                        <IconWrapper key={index}>
-                            {item.icon}
-                            {isPanelOpen && <IconText>{item.label}</IconText>}
-                        </IconWrapper>
-                    ))}
-                </SidePanel>
-            </AnimatePresence>
-            <Box style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', width: '100%', justifyContent: 'left' }}>
-                <CommonButton
-                    variant="contained"
-                    endIcon={<AddIcon />}
-                    sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.9)' } }}
-                    onClick={createEntity}
-                >
-                    Create Entity
-                </CommonButton>
-                <Box style={{ marginLeft: '10px' }}>
-                    <IconButton onClick={handleMenuClick} size="small" style={{ padding: '0', height: '100%' }}>
-                        <MoreHorizIcon />
+        <>
+            <div sidePanelCollapsed={sidePanelCollapsed} className="headers" style={{
+                display: 'flex',
+                backgroundColor: '#fff',
+                boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+                width: '%',
+                top: 0,
+                height: '4%',
+                marginLeft: sidePanelCollapsed ? '4%' : '20%',
+            }}>
+                <LeftContainer>
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize', color: '#71839B' }}>Administration</AdministrationText>
+                    <ArrowRightIcon />
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Entity Manager</AdministrationText>
+                </LeftContainer>
+                <RightContainer>
+                    <IconButton>
+                        <AccountIcon />
                     </IconButton>
-                </Box>
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
+                    <IconButton>
+                        <MoreIcon />
+                    </IconButton>
+                </RightContainer>
+            </div>
+
+            <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0 }}>
+                <div ref={sidePanelRef} onClick={handleClickOnPanel}>
+                    <SidePanel collapsed={sidePanelCollapsed} />
+                </div>
+                <Container
+                    style={{
+                        flexGrow: 1,
+                        marginLeft: sidePanelCollapsed ? '1%' : '253px',
+                        padding: '0 5%',
+                        transition: 'margin-left 0.3s ease',
+                        width: '100%',
+                        maxWidth: '100%',
                     }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right',
-                    }}
-                    sx={{ maxWidth: '100px' }}
                 >
-                    <MenuItem onClick={handleMenuClose} sx={{ padding: '1px 8px', fontSize: '12px' }}>Export</MenuItem>
-                </Menu>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"}>
+                        <Typography variant="h5" style={{ fontWeight: '200' }}>Entity Manager</Typography>
+                        <Box display="flex" alignItems="center">
+                            <SearchContainer>
+                                <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
+                            </SearchContainer>
+                            <CreateButton variant="contained" startIcon={<AddIcon />} onClick={handleCreateEntity}>
+                                Create Entity
+                            </CreateButton>
+                        </Box>
+                    </Box>
+                    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                        <TableContainer sx={{
+                            maxHeight: 620,
+                            overflowY: 'auto',
+                            '&::-webkit-scrollbar': {
+                                width: '0px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                borderRadius: '10px',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                backgroundColor: 'transparent',
+                            },
+                        }}>
+                            <FixedHeaderTable>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            {columns.map((column) => (
+                                                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                                    {column.label}
+                                                </StyledTableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {rows
+                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                            .map((row) => (
+                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                    {columns.map((column) => {
+                                                        const value = row[column.id];
+                                                        return (
+                                                            <TableCell key={column.id} align={column.align}>
+                                                                {value}
+                                                            </TableCell>
+                                                        );
+                                                    })}
+                                                </TableRow>
+                                            ))}
+                                    </TableBody>
+                                </Table>
+                            </FixedHeaderTable>
+                        </TableContainer>
+                    </Paper>
+                </Container>
             </Box>
-            <TextField
-                label="Search"
-                variant="outlined"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                InputProps={{
-                    style: { height: '50px', padding: '0 10px' },
-                }}
-                InputLabelProps={{
-                    style: { lineHeight: '30px', fontSize: '16px', margin: '0 0px' },
-                }}
-                style={{ width: '100%', marginBottom: '20px' }}
-            />
-            <Box style={{ overflowX: 'auto', width: '100%' }}>
-                <TableContainerStyled component={Paper} sx={{ boxShadow: '0px -1px 5px rgba(0, 0, 0, 0.2)' }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Label</TableCell>
-                                <TableCell>Type</TableCell>
-                                <TableCell>Module</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {tableData.map((row, index) => (
-                                <TableRow key={index}>
-                                    <TableCell>{row.name}</TableCell>
-                                    <TableCell>{row.label}</TableCell>
-                                    <TableCell>{row.type}</TableCell>
-                                    <TableCell>{row.module}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainerStyled>
-            </Box>
-        </Container>
+        </>
     );
 };
 
-export default Home;
+export default StickyHeadTable;
