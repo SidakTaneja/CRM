@@ -145,6 +145,20 @@ function AddEntity() {
         setLabelplural(event.target.value)
     }
 
+    function handleAddFieldClick() {
+        const dialog = document.querySelector('.dialog');
+        const overlay = document.querySelector('.dialog-overlay');
+        dialog.classList.add('dialog-open');
+        overlay.classList.add('overlay-open');
+    }
+
+    function handleCloseDialog() {
+        const dialog = document.querySelector('.dialog');
+        const overlay = document.querySelector('.dialog-overlay');
+        dialog.classList.remove('dialog-open');
+        overlay.classList.remove('overlay-open');
+    }
+
     // function create() {
     //     if (!entityName || !selectedType) {
     //         alert("Please fill in all fields.");
@@ -230,7 +244,7 @@ function AddEntity() {
                 </div>
                 <div style={{ marginTop: "2rem" }}>
                     <text className="heading">
-                        Entity Fieldssss
+                        Entity Fields
                     </text>
                 </div>
                 <div className="button-container-2">
@@ -241,13 +255,15 @@ function AddEntity() {
                         <SearchContainer>
                             <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
                         </SearchContainer>
-                        <button className="cancel" style={{
-                            fontSize: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            paddingLeft: '16px'
-                        }}>
+                        <button className="cancel"
+                            style={{
+                                fontSize: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                paddingLeft: '16px'
+                            }}
+                            onClick={handleAddFieldClick}>
                             <AddIcon />
                             Add Field
                         </button>
@@ -287,6 +303,79 @@ function AddEntity() {
                     </TableContainer>
                 </Paper>
             </div >
+            <div className="dialog-overlay" onClick={handleCloseDialog}></div>
+            <div className="dialog">
+                <h2>Add Fieldsssss</h2>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: "flex", flexDirection: "row", marginTop: "2rem" }}>
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Name"
+                            defaultValue="Placeholder"
+                            style={{ width: '32%' }}
+                            value={entityName}
+                            onChange={handleEntityNameChange}
+                            onBlur={handleEntityNameBlur}
+                        />
+
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Singular Label"
+                            defaultValue=""
+                            value={labelsingular}
+                            onChange={handleLabelsingularchange}
+                            style={{ width: '32%', marginLeft: '2rem' }}
+                        />
+
+                        <TextField
+                            id="outlined-select-currency"
+                            select
+                            label="Select"
+                            defaultValue=""
+                            style={{ width: '32%', marginLeft: '2rem' }}
+                            onChange={handleTypeSelect}
+                        >
+                            {typeOptions.map((option) => (
+                                <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Name"
+                            defaultValue="Placeholder"
+                            style={{ width: '67%' }}
+                            value={entityName}
+                            onChange={handleEntityNameChange}
+                            onBlur={handleEntityNameBlur}
+                        />
+
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Singular Label"
+                            defaultValue=""
+                            value={labelsingular}
+                            onChange={handleLabelsingularchange}
+                            style={{ width: '31.7%', marginLeft: '2rem' }}
+                        />
+                    </div>
+                    <div className="button-container">
+                        <button className="cancel">
+                            CANCEL
+                        </button>
+                        <button className="create">
+                            SAVE
+                        </button>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }
