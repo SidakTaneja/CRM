@@ -14,6 +14,7 @@ import WorkIcon from '@mui/icons-material/Work';
 import LoopIcon from '@mui/icons-material/Loop';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import logo from '../Images/logo_fortrea.png';
+import smallLogo from '../Images/smallLogo.png';
 
 const subOptions = {
     System: [
@@ -103,11 +104,13 @@ const CompanyLabel = styled.div(({ collapsed }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : 'flex-start',
+    width: collapsed ? '40px' : 'auto', 
+    marginLeft: collapsed ? ' 17.5%':'',
 }));
 
 const CompanyLogo = styled.img(({ collapsed }) => ({
-    width: collapsed ? '30px' : '100px',
-    height: 'auto',
+    width: collapsed ? '24px' : '100px',
+    height: collapsed ? '24px' : 'auto',
     marginRight: collapsed ? '0' : '10px',
 }));
 
@@ -115,6 +118,7 @@ const MainButton = styled(ListItem)(({ collapsed }) => ({
     cursor: 'pointer',
     '&:hover': {
         backgroundColor: '#7D53D6',
+        borderRadius: '10px', // Added border radius on hover
     },
     justifyContent: collapsed ? 'center' : 'flex-start',
 }));
@@ -134,6 +138,11 @@ const SubOption = styled(ListItem)({
     fontSize: '14px',
 });
 
+const ArrowIcon = styled(ArrowDropDownIcon)(({ open }) => ({
+    transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+    transition: 'transform 0.3s ease',
+}));
+
 const SidePanel = ({ collapsed }) => {
     const [openMenus, setOpenMenus] = useState({});
 
@@ -147,7 +156,7 @@ const SidePanel = ({ collapsed }) => {
     return (
         <SidePanelContainer collapsed={collapsed}>
             <CompanyLabel collapsed={collapsed}>
-                <CompanyLogo src={logo} alt="Fortrea Logo" collapsed={collapsed} />
+                <CompanyLogo src={collapsed ? smallLogo : logo} alt="Fortrea Logo" collapsed={collapsed} />
             </CompanyLabel>
             <List component="nav">
                 {Object.keys(subOptions).map((mainOption) => (
@@ -157,7 +166,7 @@ const SidePanel = ({ collapsed }) => {
                                 {menuIcons[mainOption]}
                             </IconWrapper>
                             <MainListItemText primary={mainOption} collapsed={collapsed} />
-                            {!collapsed && <ArrowDropDownIcon />}
+                            {!collapsed && <ArrowIcon open={openMenus[mainOption]} />}
                         </MainButton>
                         <Collapse in={openMenus[mainOption] && !collapsed} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding>
