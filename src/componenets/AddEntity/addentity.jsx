@@ -6,6 +6,22 @@ import Home from "../Home/home.jsx"
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import SidePanel from "../SidePanel/SidePanel.js";
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import styled from '@emotion/styled';
+import {
+    Box,
+    Container,
+    Paper,
+    Table,
+    TableBody,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TableCell,
+    InputBase,
+    Button
+} from '@mui/material';
 
 function AddEntity() {
     const [type, setType] = useState("");
@@ -16,6 +32,85 @@ function AddEntity() {
     const [screen, setScreen] = useState("");
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
     const sidePanelRef = useRef(null);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(100);
+
+    const columns = [
+        { id: 'name', label: 'Name', minWidth: 150 },
+        { id: 'label', label: 'Label', minWidth: 150 },
+        { id: 'type', label: 'Type', minWidth: 150 },
+        { id: 'module', label: 'Module', minWidth: 150 },
+    ];
+
+    function createData(name, label, type, module) {
+        return { name, label, type, module };
+    }
+
+    const rows = [
+        createData('Account', 'Account', 'Entity', 'Sales'),
+        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('Account', 'Account', 'Entity', 'Sales'),
+        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('Account', 'Account', 'Entity', 'Sales'),
+        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('Account', 'Account', 'Entity', 'Sales'),
+        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
+        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
+        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+        createData('NewTask', 'New Task', 'Task', 'Advanced'),
+    ];
+
+    const StyledTableCell = styled(TableCell)({
+        color: '#613FAA',
+        '&:hover': {
+            textDecoration: 'underline',
+            color: '#1565C0',
+        }
+    });
+
+    const FixedHeaderTable = styled(Table)({
+        '& thead': {
+            position: 'sticky',
+            top: 0,
+            backgroundColor: '#f4f4f4',
+            zIndex: 1,
+        },
+    });
+
+    const SearchContainer = styled(Box)({
+        display: 'flex',
+        alignItems: 'center',
+        color: "#999999",
+
+    });
+
+    const SearchInput = styled(InputBase)({
+        borderRadius: '50px',
+        marginRight: '10px',
+        backgroundColor: '#f4f4f4',
+        padding: '5px 10px',
+        border: '1px solid #CCCCCC',
+        color: "#999999",
+        width: "100%"
+
+    });
 
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
@@ -113,7 +208,7 @@ function AddEntity() {
                                 id="outlined-select-currency"
                                 select
                                 label="Select"
-                                defaultValue="EUR"
+                                defaultValue=""
                                 style={{ width: '32%', marginLeft: '2rem' }}
                                 onChange={handleTypeSelect}
                             >
@@ -175,20 +270,65 @@ function AddEntity() {
                         </div>
                     </div>
                 </div>
-                <div className="container-2">
+                <div style={{ marginTop: "2rem" }}>
                     <text className="heading">
                         Entity Fields
                     </text>
-                    {/* <div className="button-container-2">
-                        <button className="cancel">
-                            CANCEL
-                        </button>
-                        <button className="create">
-                            SAVE
-                        </button>
-                    </div> */}
                 </div>
-            </div>
+                <div className="button-container-2">
+                    <button className="underlined-btn">Fields</button>
+                    <button className="underlined-btn-not-selected">Relationships</button>
+                    <button className="underlined-btn-not-selected">Formula</button>
+                    <Box display="flex" justifyContent={"flex-end"} width={sidePanelCollapsed ? "78.2%" : "74%"} >
+                        <SearchContainer>
+                            <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
+                        </SearchContainer>
+                        <button className="cancel" style={{
+                            fontSize: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            paddingLeft: '16px'
+                        }}>
+                            <AddIcon />
+                            Add Field
+                        </button>
+                    </Box>
+                </div>
+                <Paper sx={{ width: '100%', marginTop: '1rem' }}>
+                    <TableContainer >
+                        <FixedHeaderTable>
+                            <Table stickyHeader aria-label="sticky table">
+                                <TableHead >
+                                    <TableRow>
+                                        {columns.map((column) => (
+                                            <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                                {column.label}
+                                            </StyledTableCell>
+                                        ))}
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {rows
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((row) => (
+                                            <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                {columns.map((column) => {
+                                                    const value = row[column.id];
+                                                    return (
+                                                        <TableCell key={column.id} align={column.align}>
+                                                            {value}
+                                                        </TableCell>
+                                                    );
+                                                })}
+                                            </TableRow>
+                                        ))}
+                                </TableBody>
+                            </Table>
+                        </FixedHeaderTable>
+                    </TableContainer>
+                </Paper>
+            </div >
         </>
     );
 }

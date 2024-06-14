@@ -10,15 +10,54 @@
 }
 
 .button-container-2 {
-    /* display: flex; */
-    /* justify-content: flex-end; */
+    display: flex;
+    justify-content: row;
+    margin-top: 1rem;
 }
 
-.container-2 {
-    display: flex;
-    /* flex-direction: row; */
-    margin-top: 2rem;
-    height: 2rem;
+.underlined-btn {
+    color: #1565C0;
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #ffffff;
+    border-bottom: 4px solid #1565C0;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.underlined-btn-not-selected {
+    color: #555555;
+    font-size: 16px;
+    font-weight: 550;
+    background-color: #ffffff;
+    border-bottom: 0px;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.underlined-btn-not-selected:hover {
+    color: #1565C0;
+    font-size: 16px;
+    font-weight: 550;
+    background-color: #ffffff;
+    border-bottom: 0px;
+    border-top: 0px;
+    border-right: 0px;
+    border-left: 0px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .cancel {
@@ -92,6 +131,7 @@
     margin-top: 6rem;
     margin-left: 21.5%;
     transition: margin-left 0.3s ease;
+    transition: width 0.3s ease;
 }
 
 .container.collapsed {
