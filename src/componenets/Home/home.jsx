@@ -227,7 +227,7 @@ const StickyHeadTable = () => {
                         maxWidth: '100%',
                     }}
                 >
-                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"} marginLeft={"3%"}>
                         <Typography variant="h5" style={{ fontWeight: '200' }}>Entity Manager</Typography>
                         <Box display="flex" alignItems="center">
                             <SearchContainer>
@@ -238,52 +238,39 @@ const StickyHeadTable = () => {
                             </CreateButton>
                         </Box>
                     </Box>
-                    <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                        <TableContainer sx={{
-                            maxHeight: 620,
-                            overflowY: 'auto',
-                            '&::-webkit-scrollbar': {
-                                width: '0px',
-                            },
-                            '&::-webkit-scrollbar-thumb': {
-                                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                                borderRadius: '10px',
-                            },
-                            '&::-webkit-scrollbar-track': {
-                                backgroundColor: 'transparent',
-                            },
-                        }}>
-                            <FixedHeaderTable>
-                                <Table stickyHeader aria-label="sticky table">
-                                    <TableHead>
-                                        <TableRow>
-                                            {columns.map((column) => (
-                                                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                                                    {column.label}
-                                                </StyledTableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {rows
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((row) => (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                                                    {columns.map((column) => {
-                                                        const value = row[column.id];
-                                                        return (
-                                                            <TableCell key={column.id} align={column.align}>
-                                                                {value}
-                                                            </TableCell>
-                                                        );
-                                                    })}
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </FixedHeaderTable>
-                        </TableContainer>
-                    </Paper>
+                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft:'3%' }}>
+                    <TableContainer >
+                        <FixedHeaderTable>
+                            <Table stickyHeader aria-label="sticky table">
+                                <TableHead >
+                                    <TableRow>
+                                        {columns.map((column) => (
+                                            <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                                {column.label}
+                                            </StyledTableCell>
+                                        ))}
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {rows
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((row) => (
+                                            <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                {columns.map((column) => {
+                                                    const value = row[column.id];
+                                                    return (
+                                                        <TableCell key={column.id} align={column.align}>
+                                                            {value}
+                                                        </TableCell>
+                                                    );
+                                                })}
+                                            </TableRow>
+                                        ))}
+                                </TableBody>
+                            </Table>
+                        </FixedHeaderTable>
+                    </TableContainer>
+                </Paper>
                 </Container>
             </Box>
         </>
