@@ -191,7 +191,7 @@ const StickyHeadTable = () => {
                 display: 'flex',
                 backgroundColor: '#fff', // Background color set to #f6f6fc
                 boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-                width: '100%',
+                width: '96%',
                 top: 0,
                 height: '4%',
                 marginLeft: sidePanelCollapsed ? '4%' : '20%',
@@ -221,12 +221,12 @@ const StickyHeadTable = () => {
                         marginLeft: sidePanelCollapsed ? '1%' : '253px',
                         padding: '0 5%',
                         transition: 'margin-left 0.3s ease',
-                        width: '100%',
+                        width: '102.7%',
                         maxWidth: '100%',
                     }}
                 >
-                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"} marginLeft={"3%"}>
-                        <Typography variant="h5" style={{ fontWeight: '200' }}>Entity Manager</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"102.7%"} marginLeft={ sidePanelCollapsed ? '1.5%' : '3%'}>
+                        <Typography   variant="" style={{ fontWeight: '600',fontSize:'22px' }}>Entity Manager</Typography>
                         <Box display="flex" alignItems="center">
                             <SearchContainer>
                                 <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
@@ -236,7 +236,7 @@ const StickyHeadTable = () => {
                             </CreateButton>
                         </Box>
                     </Box>
-                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft: '3%' }}>
+                    <Paper sx={{ width: '102.7%', marginTop: '1rem', marginLeft: sidePanelCollapsed ? '1.5%' : '3%' }}>
                         <TableContainer >
                             <FixedHeaderTable>
                                 <Table stickyHeader aria-label="sticky table">
