@@ -30,7 +30,7 @@ function AddEntity() {
     const [labelsingular, setLabelsingular] = useState("");
     const [labelplural, setLabelplural] = useState("");
     const [screen, setScreen] = useState("");
-    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const sidePanelRef = useRef(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(100);
@@ -168,9 +168,9 @@ function AddEntity() {
     //     setScreen("Home")
     // }
 
-    // function cancel() {
-    //     setScreen("Home")
-    // }
+    function handleCancel() {
+        setScreen("Home")
+    }
 
     if (screen === "Home") {
         return <Home />
@@ -233,7 +233,7 @@ function AddEntity() {
                             />
                         </div>
                         <div className="button-container">
-                            <button className="cancel">
+                            <button className="cancel" onClick={handleCancel}>
                                 CANCEL
                             </button>
                             <button className="create">
@@ -305,7 +305,7 @@ function AddEntity() {
             </div >
             <div className="dialog-overlay" onClick={handleCloseDialog}></div>
             <div className="dialog">
-                <h2>Add Fieldsssss</h2>
+                <text className="heading">Add Fields</text>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: "flex", flexDirection: "row", marginTop: "2rem" }}>
                         <TextField
@@ -363,11 +363,23 @@ function AddEntity() {
                             defaultValue=""
                             value={labelsingular}
                             onChange={handleLabelsingularchange}
-                            style={{ width: '31.7%', marginLeft: '2rem' }}
+                            style={{ width: '31.6%', marginLeft: '2rem' }}
+                        />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                        <TextField
+                            required
+                            id="outlined-required"
+                            label="Name"
+                            defaultValue="Placeholder"
+                            style={{ width: '30.9%' }}
+                            value={entityName}
+                            onChange={handleEntityNameChange}
+                            onBlur={handleEntityNameBlur}
                         />
                     </div>
                     <div className="button-container">
-                        <button className="cancel">
+                        <button className="cancel" onClick={handleCloseDialog}>
                             CANCEL
                         </button>
                         <button className="create">

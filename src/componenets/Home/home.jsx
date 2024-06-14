@@ -158,7 +158,7 @@ const CreateButton = styled(Button)({
 const StickyHeadTable = () => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(100);
-    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(false);
+    const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const [screen, setScreen] = useState("")
     const sidePanelRef = useRef(null);
 
@@ -238,39 +238,39 @@ const StickyHeadTable = () => {
                             </CreateButton>
                         </Box>
                     </Box>
-                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft:'3%' }}>
-                    <TableContainer >
-                        <FixedHeaderTable>
-                            <Table stickyHeader aria-label="sticky table">
-                                <TableHead >
-                                    <TableRow>
-                                        {columns.map((column) => (
-                                            <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                                                {column.label}
-                                            </StyledTableCell>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {rows
-                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                        .map((row) => (
-                                            <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                                                {columns.map((column) => {
-                                                    const value = row[column.id];
-                                                    return (
-                                                        <TableCell key={column.id} align={column.align}>
-                                                            {value}
-                                                        </TableCell>
-                                                    );
-                                                })}
-                                            </TableRow>
-                                        ))}
-                                </TableBody>
-                            </Table>
-                        </FixedHeaderTable>
-                    </TableContainer>
-                </Paper>
+                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft: '3%' }}>
+                        <TableContainer >
+                            <FixedHeaderTable>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead >
+                                        <TableRow>
+                                            {columns.map((column) => (
+                                                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                                    {column.label}
+                                                </StyledTableCell>
+                                            ))}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {rows
+                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                            .map((row) => (
+                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                    {columns.map((column) => {
+                                                        const value = row[column.id];
+                                                        return (
+                                                            <TableCell key={column.id} align={column.align}>
+                                                                {value}
+                                                            </TableCell>
+                                                        );
+                                                    })}
+                                                </TableRow>
+                                            ))}
+                                    </TableBody>
+                                </Table>
+                            </FixedHeaderTable>
+                        </TableContainer>
+                    </Paper>
                 </Container>
             </Box>
         </>
