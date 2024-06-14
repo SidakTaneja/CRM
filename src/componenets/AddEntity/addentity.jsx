@@ -10,6 +10,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
 import {
+    IconButton,
+} from '@mui/material';
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CloseIcon from '@mui/icons-material/Close';
+import {
     Box,
     Container,
     Paper,
@@ -34,12 +41,18 @@ function AddEntity() {
     const sidePanelRef = useRef(null);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(100);
+    const [fieldName, setFieldName] = useState("");
+    const [fieldLabel, setFieldLabel] = useState("");
+    const [fieldDefault, setFieldDefault] = useState("");
+    const [fieldType, setFieldType] = useState("");
+    const [fieldChar, setFieldChar] = useState("");
+    const [fieldTooltipText, setFieldTooltipText] = useState("");
 
     const columns = [
         { id: 'name', label: 'Name', minWidth: 150 },
         { id: 'label', label: 'Label', minWidth: 150 },
         { id: 'type', label: 'Type', minWidth: 150 },
-        { id: 'module', label: 'Module', minWidth: 150 },
+        { id: 'module', label: 'Required', minWidth: 150 },
     ];
 
     function createData(name, label, type, module) {
@@ -116,6 +129,48 @@ function AddEntity() {
         { value: "company", label: "Company" }
     ];
 
+    const AdministrationText = styled(Button)({
+        color: '#1565C0',
+        '&:hover': {
+            textDecoration: 'underline',
+            color: '#1565C0',
+        },
+    });
+
+    const RightContainer = styled.div(({ sidePanelCollapsed }) => ({
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        flex: '1',
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        width: '40%',
+    }));
+
+    const LeftContainer = styled.div(({ sidePanelCollapsed }) => ({
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        width: 'fit',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        border: '2px solid #ececec',
+        margin: '5px',
+        marginLeft: '1.8%',
+    }));
+
+    const AccountIcon = styled(AccountCircleIcon)({
+        color: '#613FAA',
+        fontSize: '36px',
+    });
+
+    const MoreIcon = styled(MoreVertIcon)({
+        color: '#613FAA',
+        fontSize: '36px',
+    });
+
+
     function handleTypeSelect(option) {
         setSelectedType(option);
         setType(option.label)
@@ -178,6 +233,30 @@ function AddEntity() {
 
     return (
         <>
+            <div className="headers" style={{
+                display: 'flex',
+                backgroundColor: '#fff',
+                boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+                top: 0,
+                height: '4%',
+                marginLeft: sidePanelCollapsed ? '4%' : '20%',
+            }}>
+                <LeftContainer>
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize', color: '#71839B' }}>Administration</AdministrationText>
+                    <ArrowRightIcon />
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Entity Manager</AdministrationText>
+                    <ArrowRightIcon />
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Create Entity</AdministrationText>
+                </LeftContainer>
+                <RightContainer>
+                    <IconButton>
+                        <AccountIcon />
+                    </IconButton>
+                    <IconButton>
+                        <MoreIcon />
+                    </IconButton>
+                </RightContainer>
+            </div>
             <div ref={sidePanelRef} onClick={handleClickOnPanel}>
                 <SidePanel collapsed={sidePanelCollapsed} />
             </div>
@@ -305,7 +384,10 @@ function AddEntity() {
             </div >
             <div className="dialog-overlay" onClick={handleCloseDialog}></div>
             <div className="dialog">
-                <text className="heading">Add Fields</text>
+                <div className="dialog-header">
+                    <text className="heading">Add Fields</text>
+                    <CloseIcon onClick={handleCloseDialog} style={{ cursor: 'pointer' }} />
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: "flex", flexDirection: "row", marginTop: "2rem" }}>
                         <TextField
@@ -313,29 +395,30 @@ function AddEntity() {
                             id="outlined-required"
                             label="Name"
                             defaultValue="Placeholder"
-                            style={{ width: '32%' }}
-                            value={entityName}
-                            onChange={handleEntityNameChange}
-                            onBlur={handleEntityNameBlur}
+                            style={{ width: '50%' }}
+                            value={fieldName}
+                        // onChange={handleEntityNameChange}
+                        // onBlur={handleEntityNameBlur}
                         />
 
                         <TextField
                             required
                             id="outlined-required"
-                            label="Singular Label"
+                            label="Label"
                             defaultValue=""
-                            value={labelsingular}
-                            onChange={handleLabelsingularchange}
-                            style={{ width: '32%', marginLeft: '2rem' }}
+                            value={fieldLabel}
+                            // onChange={handleLabelsingularchange}
+                            style={{ width: '50%', marginLeft: '1rem' }}
                         />
-
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
                         <TextField
                             id="outlined-select-currency"
                             select
-                            label="Select"
+                            label="Type"
                             defaultValue=""
-                            style={{ width: '32%', marginLeft: '2rem' }}
-                            onChange={handleTypeSelect}
+                            style={{ width: '50%' }}
+                        // onChange={handleTypeSelect}
                         >
                             {typeOptions.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -343,44 +426,43 @@ function AddEntity() {
                                 </MenuItem>
                             ))}
                         </TextField>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Name"
-                            defaultValue="Placeholder"
-                            style={{ width: '67%' }}
-                            value={entityName}
-                            onChange={handleEntityNameChange}
-                            onBlur={handleEntityNameBlur}
-                        />
 
                         <TextField
                             required
                             id="outlined-required"
-                            label="Singular Label"
+                            label="Default Value"
                             defaultValue=""
-                            value={labelsingular}
-                            onChange={handleLabelsingularchange}
-                            style={{ width: '31.6%', marginLeft: '2rem' }}
+                            value={fieldDefault}
+                            // onChange={handleLabelsingularchange}
+                            style={{ width: '50%', marginLeft: '1rem' }}
+                        />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                        <TextField
+                            required
+                            id="Tool-tip Text"
+                            label="Name"
+                            style={{ width: '100%' }}
+                            value={fieldTooltipText}
+                        // onChange={handleEntityNameChange}
+                        // onBlur={handleEntityNameBlur}
                         />
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
                         <TextField
                             required
                             id="outlined-required"
-                            label="Name"
+                            label="Char Limit"
                             defaultValue="Placeholder"
-                            style={{ width: '30.9%' }}
-                            value={entityName}
-                            onChange={handleEntityNameChange}
-                            onBlur={handleEntityNameBlur}
+                            style={{ width: '50%' }}
+                            value={fieldChar}
+                        // onChange={handleEntityNameChange}
+                        // onBlur={handleEntityNameBlur}
                         />
                     </div>
-                    <div className="button-container">
-                        <button className="cancel" onClick={handleCloseDialog}>
-                            CANCEL
+                    <div className="button-container" >
+                        <button className="cancel" >
+                            CLEAR
                         </button>
                         <button className="create">
                             SAVE
