@@ -230,7 +230,7 @@ function AddEntity() {
                 </div>
                 <div style={{ marginTop: "2rem" }}>
                     <text className="heading">
-                        Entity Fields
+                        Entity Fieldssss
                     </text>
                 </div>
                 <div className="button-container-2">
