@@ -54,27 +54,6 @@ function AddEntity() {
         createData('Account', 'Account', 'Entity', 'Sales'),
         createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
         createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('Account', 'Account', 'Entity', 'Sales'),
-        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('Account', 'Account', 'Entity', 'Sales'),
-        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
-        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
-        createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-        createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
-        createData('NewTask', 'New Task', 'Task', 'Advanced'),
     ];
 
     const StyledTableCell = styled(TableCell)({
@@ -239,27 +218,6 @@ function AddEntity() {
                                 style={{ marginLeft: '2rem', width: '32%' }}
                             />
                         </div>
-                        {/* <div style={{ display: "flex", flexDirection: "row", marginTop: '2rem' }}>
-                            <TextField
-                            required
-                            id="outlined-required"
-                            label="Singular Label"
-                            defaultValue=""
-                            value={labelsingular}
-                            onChange={handleLabelsingularchange}
-                            style={{ width: '32%' }}
-                            />
-                            
-                            <TextField
-                            required
-                            id="outlined-required"
-                            label="Plural Label"
-                            defaultValue=""
-                            value={labelplural}
-                            onChange={handleLabelpluralchange}
-                            style={{ marginLeft: '2rem', width: '32%' }}
-                            />
-                            </div> */}
                         <div className="button-container">
                             <button className="cancel">
                                 CANCEL
@@ -295,7 +253,7 @@ function AddEntity() {
                         </button>
                     </Box>
                 </div>
-                <Paper sx={{ width: '100%', marginTop: '1rem' }}>
+                <Paper sx={{ width: '98%', marginTop: '1rem' }}>
                     <TableContainer >
                         <FixedHeaderTable>
                             <Table stickyHeader aria-label="sticky table">
