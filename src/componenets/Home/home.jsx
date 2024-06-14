@@ -107,7 +107,7 @@ const LeftContainer = styled.div(({ sidePanelCollapsed }) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    width: '20  %',
+    width: 'fit',
     backgroundColor: 'white',
     borderRadius: '8px',
     border: '2px solid #ececec',
@@ -129,7 +129,6 @@ const SearchContainer = styled(Box)({
     display: 'flex',
     alignItems: 'center',
     color: "#999999",
-
 });
 
 const SearchInput = styled(InputBase)({
@@ -140,7 +139,6 @@ const SearchInput = styled(InputBase)({
     border: '1px solid #CCCCCC',
     color: "#999999",
     width: "100%"
-
 });
 
 const CreateButton = styled(Button)({
@@ -188,12 +186,12 @@ const StickyHeadTable = () => {
     }
 
     return (
-        <>
+        <><div style={{backgroundColor:'#f6f6fc'}}>
             <div sidePanelCollapsed={sidePanelCollapsed} className="headers" style={{
                 display: 'flex',
-                backgroundColor: '#fff',
+                backgroundColor: '#fff', // Background color set to #f6f6fc
                 boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-                width: '%',
+                width: '100%',
                 top: 0,
                 height: '4%',
                 marginLeft: sidePanelCollapsed ? '4%' : '20%',
@@ -213,7 +211,7 @@ const StickyHeadTable = () => {
                 </RightContainer>
             </div>
 
-            <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0 }}>
+            <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0, backgroundColor:'#f6f6fc' }}>
                 <div ref={sidePanelRef} onClick={handleClickOnPanel}>
                     <SidePanel collapsed={sidePanelCollapsed} />
                 </div>
@@ -273,6 +271,7 @@ const StickyHeadTable = () => {
                 </Paper>
                 </Container>
             </Box>
+            </div>
         </>
     );
 };
