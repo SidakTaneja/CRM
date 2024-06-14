@@ -238,7 +238,7 @@ const StickyHeadTable = () => {
                             </CreateButton>
                         </Box>
                     </Box>
-                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft:'3%' }}>
+                    <Paper sx={{ width: '98%', marginTop: '1rem', marginLeft:'3%' }}>
                     <TableContainer >
                         <FixedHeaderTable>
                             <Table stickyHeader aria-label="sticky table">
