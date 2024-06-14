@@ -33,6 +33,7 @@ import {
 function AddEntity() {
     const [type, setType] = useState("");
     const [selectedType, setSelectedType] = useState("");
+    const [selectedfieldType, setSelectedFieldType] = useState("");
     const [entityName, setEntityName] = useState("");
     const [labelsingular, setLabelsingular] = useState("");
     const [labelplural, setLabelplural] = useState("");
@@ -173,7 +174,9 @@ function AddEntity() {
 
     function handleTypeSelect(option) {
         setSelectedType(option);
-        setType(option.label)
+        setType(option.value)
+        console.log(selectedType)
+        console.log("hello")
     }
 
     function handleEntityNameChange(event) {
@@ -200,18 +203,49 @@ function AddEntity() {
         setLabelplural(event.target.value)
     }
 
+    function handleFieldNameChange(event) {
+        setFieldName(event.target.value)
+    }
+
+    function handleFieldLabelChange(event) {
+        setFieldLabel(event.target.value)
+    }
+
+    function handleFieldDefaultChange(event) {
+        setFieldDefault(event.target.value)
+    }
+
+    function handleFieldToolChange(event) {
+        setFieldTooltipText(event.target.value)
+    }
+
+    function handleFieldCharChange(event) {
+        setFieldChar(event.target.value)
+    }
+
+    function handleFieldTypeChange(option) {
+        setSelectedFieldType(option)
+        setFieldType(option.label)
+        console.log(fieldType)
+    }
+
     function handleAddFieldClick() {
         const dialog = document.querySelector('.dialog');
-        const overlay = document.querySelector('.dialog-overlay');
         dialog.classList.add('dialog-open');
-        overlay.classList.add('overlay-open');
     }
 
     function handleCloseDialog() {
         const dialog = document.querySelector('.dialog');
-        const overlay = document.querySelector('.dialog-overlay');
         dialog.classList.remove('dialog-open');
-        overlay.classList.remove('overlay-open');
+    }
+
+    function handleClear() {
+        setFieldName("")
+        setFieldLabel("")
+        setFieldType("")
+        setFieldDefault("")
+        setFieldTooltipText("")
+        setFieldChar("")
     }
 
     // function create() {
@@ -382,7 +416,6 @@ function AddEntity() {
                     </TableContainer>
                 </Paper>
             </div >
-            <div className="dialog-overlay" onClick={handleCloseDialog}></div>
             <div className="dialog">
                 <div className="dialog-header">
                     <text className="heading">Add Fields</text>
@@ -397,8 +430,7 @@ function AddEntity() {
                             defaultValue="Placeholder"
                             style={{ width: '50%' }}
                             value={fieldName}
-                        // onChange={handleEntityNameChange}
-                        // onBlur={handleEntityNameBlur}
+                            onChange={handleFieldNameChange}
                         />
 
                         <TextField
@@ -407,7 +439,7 @@ function AddEntity() {
                             label="Label"
                             defaultValue=""
                             value={fieldLabel}
-                            // onChange={handleLabelsingularchange}
+                            onChange={handleFieldLabelChange}
                             style={{ width: '50%', marginLeft: '1rem' }}
                         />
                     </div>
@@ -416,9 +448,9 @@ function AddEntity() {
                             id="outlined-select-currency"
                             select
                             label="Type"
-                            defaultValue=""
+                            defaultValue={fieldType}
                             style={{ width: '50%' }}
-                        // onChange={handleTypeSelect}
+                            onChange={handleFieldTypeChange}
                         >
                             {typeOptions.map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -433,7 +465,7 @@ function AddEntity() {
                             label="Default Value"
                             defaultValue=""
                             value={fieldDefault}
-                            // onChange={handleLabelsingularchange}
+                            onChange={handleFieldDefaultChange}
                             style={{ width: '50%', marginLeft: '1rem' }}
                         />
                     </div>
@@ -441,11 +473,10 @@ function AddEntity() {
                         <TextField
                             required
                             id="Tool-tip Text"
-                            label="Name"
+                            label="Tool-tip Text"
                             style={{ width: '100%' }}
                             value={fieldTooltipText}
-                        // onChange={handleEntityNameChange}
-                        // onBlur={handleEntityNameBlur}
+                            onChange={handleFieldToolChange}
                         />
                     </div>
                     <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
@@ -456,12 +487,11 @@ function AddEntity() {
                             defaultValue="Placeholder"
                             style={{ width: '50%' }}
                             value={fieldChar}
-                        // onChange={handleEntityNameChange}
-                        // onBlur={handleEntityNameBlur}
+                            onChange={handleFieldCharChange}
                         />
                     </div>
                     <div className="button-container" >
-                        <button className="cancel" >
+                        <button className="cancel" onClick={handleClear}>
                             CLEAR
                         </button>
                         <button className="create">
