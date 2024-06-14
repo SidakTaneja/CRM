@@ -225,8 +225,8 @@ const StickyHeadTable = () => {
                         maxWidth: '100%',
                     }}
                 >
-                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"} marginLeft={"3%"}>
-                        <Typography variant="h5" style={{ fontWeight: '200' }}>Entity Manager</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"100%"} marginLeft={ sidePanelCollapsed ? '1.5%' : '3%'}>
+                        <Typography   variant="" style={{ fontWeight: '600',fontSize:'22px' }}>Entity Manager</Typography>
                         <Box display="flex" alignItems="center">
                             <SearchContainer>
                                 <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
@@ -236,7 +236,7 @@ const StickyHeadTable = () => {
                             </CreateButton>
                         </Box>
                     </Box>
-                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft: '3%' }}>
+                    <Paper sx={{ width: '100%', marginTop: '1rem', marginLeft: sidePanelCollapsed ? '1.5%' : '3%' }}>
                         <TableContainer >
                             <FixedHeaderTable>
                                 <Table stickyHeader aria-label="sticky table">
