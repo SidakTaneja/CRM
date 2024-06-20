@@ -168,3 +168,38 @@
 .overlay-open {
     display: block;
 }
+
+.underlined-btn {
+    /* color: #1565c0; */
+    color: #555555;
+
+    font-size: 16px;
+    font-weight: 600;
+    background-color: #ffffff;
+    border-bottom: 4px solid transparent; /* Initially transparent to hide the underline */
+    padding: 10px 24px; /* Consolidated padding for all sides */
+    cursor: pointer; /* Ensure cursor changes on hover */
+  }
+  
+  .underlined-btn-not-selected {
+    color: #555555;
+    font-size: 16px;
+    font-weight: 550;
+    background-color: #ffffff;
+    padding: 10px 24px; /* Consolidated padding for all sides */
+    cursor: pointer; /* Ensure cursor changes on hover */
+  }
+  
+  /* Styling for the selected state */
+  .underlined-btn.selected {
+        color: #1565c0;
+
+    border-bottom-color: #1565c0; /* Show underline for the selected button */
+  }
+  
+  /* Hover effect for both styles */
+  /* .underlined-btn:hover,
+  .underlined-btn-not-selected:hover {
+    border-bottom-color: #1565c0;
+  } */
+  
