@@ -9,7 +9,6 @@ import {
     TableHead,
     TableRow,
     TableCell,
-    TablePagination,
     IconButton,
     Typography,
     InputBase,
@@ -21,8 +20,10 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
-import SidePanel from '../SidePanel/SidePanel';
+import SidePanel from '../../componenets/SidePanel/SidePanel';
 import AddEntity from '../AddEntity/addentity';
+import { getEntity, transformEntity } from '../../hooks/API/api';
+import { transform } from 'framer-motion';
 
 const columns = [
     { id: 'name', label: 'Name', minWidth: 150 },
@@ -30,42 +31,6 @@ const columns = [
     { id: 'type', label: 'Type', minWidth: 150 },
     { id: 'module', label: 'Module', minWidth: 150 },
 ];
-
-function createData(name, label, type, module) {
-    return { name, label, type, module };
-}
-
-const rows = [
-    createData('Account', 'Account', 'Entity', 'Sales'),
-    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('Account', 'Account', 'Entity', 'Sales'),
-    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('Account', 'Account', 'Entity', 'Sales'),
-    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('Account', 'Account', 'Entity', 'Sales'),
-    createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-    createData('NewAccount', 'New Account', 'Entity', 'Sales'),
-    createData('NewProcess', 'New Process', 'Workflow', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-    createData('NewTask', 'New Task', 'Task', 'Advanced'),
-];
-
 
 const AdministrationText = styled(Button)({
     color: '#1565C0',
@@ -107,7 +72,7 @@ const LeftContainer = styled.div(({ sidePanelCollapsed }) => ({
     display: 'flex',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    width: 'fit',
+    width: 'fit-content',
     backgroundColor: 'white',
     borderRadius: '8px',
     border: '2px solid #ececec',
@@ -154,11 +119,37 @@ const CreateButton = styled(Button)({
 });
 
 const StickyHeadTable = () => {
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
-    const [screen, setScreen] = useState("")
+    const [screen, setScreen] = useState("");
     const sidePanelRef = useRef(null);
+    const [data, setData] = useState([]);
+
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getEntity();
+                // console.log(result);
+                const transformedData = result.map(entity => {
+                    return {
+                        name: entity.name,
+                        label: entity.singular_label,
+                        type: capitalizeFirstLetter(entity.type),
+                        module: 'Custom'
+                    };
+                });
+                setData(transformedData);
+                // console.log(transformedData);
+            } catch (error) {
+                console.error('Error fetching entity:', error);
+            }
+        };
+        fetchData();
+    }, []);
 
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
@@ -177,19 +168,19 @@ const StickyHeadTable = () => {
         };
     }, []);
 
-    function handleCreateEntity() {
-        setScreen("addentity")
-    }
+    const handleCreateEntity = () => {
+        setScreen("addentity");
+    };
 
     if (screen === "addentity") {
-        return <AddEntity />
+        return <AddEntity />;
     }
 
     return (
-        <><div style={{backgroundColor:'#f6f6fc'}}>
+        <div style={{ backgroundColor: '#f6f6fc' }}>
             <div sidePanelCollapsed={sidePanelCollapsed} className="headers" style={{
                 display: 'flex',
-                backgroundColor: '#fff', // Background color set to #f6f6fc
+                backgroundColor: '#fff',
                 boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.1)',
                 width: '96%',
                 top: 0,
@@ -211,7 +202,7 @@ const StickyHeadTable = () => {
                 </RightContainer>
             </div>
 
-            <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0, backgroundColor:'#f6f6fc' }}>
+            <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0, backgroundColor: '#f6f6fc' }}>
                 <div ref={sidePanelRef} onClick={handleClickOnPanel}>
                     <SidePanel collapsed={sidePanelCollapsed} />
                 </div>
@@ -225,14 +216,14 @@ const StickyHeadTable = () => {
                         maxWidth: '100%',
                     }}
                 >
-                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"102.7%"} marginLeft={ sidePanelCollapsed ? '1.5%' : '3%'}>
-                        <Typography   variant="" style={{ fontWeight: '600',fontSize:'22px' }}>Entity Manager</Typography>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="20px" width={"102.7%"} marginLeft={sidePanelCollapsed ? '1.5%' : '3%'}>
+                        <Typography variant="" style={{ fontWeight: '600', fontSize: '22px' }}>Entity Manager</Typography>
                         <Box display="flex" alignItems="center">
                             <SearchContainer>
                                 <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
                             </SearchContainer>
                             <CreateButton variant="contained" startIcon={<AddIcon />} onClick={handleCreateEntity}>
-                                Create Entity
+                                Create
                             </CreateButton>
                         </Box>
                     </Box>
@@ -250,10 +241,10 @@ const StickyHeadTable = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {rows
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((row) => (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                        {data
+                                            .map((row, index) => (
+                                                <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+
                                                     {columns.map((column) => {
                                                         const value = row[column.id];
                                                         return (
@@ -271,8 +262,7 @@ const StickyHeadTable = () => {
                     </Paper>
                 </Container>
             </Box>
-            </div>
-        </>
+        </div>
     );
 };
 

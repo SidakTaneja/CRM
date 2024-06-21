@@ -1,11 +1,10 @@
 import React, { useRef, useState, useEffect } from "react";
 import Select from "react-select";
 import "./addentity.css";
-import { updatetable, getTable } from "../data";
-import Home from "../Home/home.jsx"
+import Home from "../Home/home.jsx";
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
-import SidePanel from "../SidePanel/SidePanel.js";
+import SidePanel from '../../componenets/SidePanel/SidePanel';
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import styled from '@emotion/styled';
@@ -29,6 +28,7 @@ import {
     InputBase,
     Button
 } from '@mui/material';
+import { getDefaultfields, createEntity, getfields } from "../../hooks/API/api.jsx";
 
 function AddEntity() {
     const [type, setType] = useState("");
@@ -40,35 +40,62 @@ function AddEntity() {
     const [screen, setScreen] = useState("");
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const sidePanelRef = useRef(null);
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(100);
     const [fieldName, setFieldName] = useState("");
     const [fieldLabel, setFieldLabel] = useState("");
     const [fieldDefault, setFieldDefault] = useState("");
     const [fieldType, setFieldType] = useState("");
     const [fieldChar, setFieldChar] = useState("");
     const [fieldTooltipText, setFieldTooltipText] = useState("");
+    const [fields, setFields] = useState()
+    const [entityCreated, setEntityCreated] = useState(false);
+    const [entityID, setEntityID] = useState()
+    const [entityFields, setEntityFields] = useState()
+    const [rows, setRows] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (type) {
+                    const result = await getDefaultfields(type);
+                    setFields(result.fields)
+                    // console.log(result.fields);
+                }
+            } catch (error) {
+                console.error('Error fetching entity:', error);
+            }
+        };
+        fetchData();
+    }, [type]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (entityID) {
+                    const result = await getfields(entityID)
+                    console.log(result)
+                    const transformedData = result.map(field => ({
+                        name: capitalizeFirstLetter(String(field.name)),
+                        label: (field.label),
+                        type: capitalizeFirstLetter(String(field.type)),
+                        required: (String(field.required))
+                    }))
+                    setRows(transformedData)
+                }
+            } catch (error) {
+                console.error('Error fetching entity:', error);
+            }
+        };
+        fetchData();
+    }, [entityID]);
+
 
     const columns = [
         { id: 'name', label: 'Name', minWidth: 150 },
         { id: 'label', label: 'Label', minWidth: 150 },
         { id: 'type', label: 'Type', minWidth: 150 },
-        { id: 'module', label: 'Required', minWidth: 150 },
+        { id: 'required', label: 'Required', minWidth: 150 },
     ];
 
-    function createData(name, label, type, module) {
-        return { name, label, type, module };
-    }
-
-    const rows = [
-        createData('Account', 'Account', 'Entity', 'Sales'),
-        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-        createData('Account', 'Account', 'Entity', 'Sales'),
-        createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
-        createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
-    ];
 
     const StyledTableCell = styled(TableCell)({
         color: '#613FAA',
@@ -123,11 +150,11 @@ function AddEntity() {
     }, []);
 
     const typeOptions = [
-        { value: "base", label: "Base" },
-        { value: "baseplus", label: "Base Plus" },
-        { value: "event", label: "Event" },
-        { value: "person", label: "Person" },
-        { value: "company", label: "Company" }
+        { value: 1, label: "Base" },
+        // { value: "baseplus", label: "Base Plus" },
+        // { value: "event", label: "Event" },
+        { value: 2, label: "Person" },
+        // { value: "company", label: "Company" }
     ];
 
     const AdministrationText = styled(Button)({
@@ -172,12 +199,21 @@ function AddEntity() {
     });
 
 
-    function handleTypeSelect(option) {
-        setSelectedType(option);
-        setType(option.value)
-        console.log(selectedType)
-        console.log("hello")
-    }
+    const handleTypeSelect = (event) => {
+        const selectedValue = event.target.value;
+        setType(selectedValue);
+        // console.log(selectedValue)
+        switch (selectedValue) {
+            case 1:
+                setSelectedType("Base")
+                break;
+            case 2:
+                setSelectedType("Person")
+                break;
+            default:
+                console.log("Unknown type");
+        }
+    };
 
     function handleEntityNameChange(event) {
         setEntityName(capitalizeFirstLetter(event.target.value));
@@ -191,9 +227,10 @@ function AddEntity() {
         }
     }
 
-    function capitalizeFirstLetter(string) {
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
         return string.charAt(0).toUpperCase() + string.slice(1);
-    }
+    };
 
     function handleLabelsingularchange(event) {
         setLabelsingular(event.target.value)
@@ -226,7 +263,6 @@ function AddEntity() {
     function handleFieldTypeChange(option) {
         setSelectedFieldType(option)
         setFieldType(option.label)
-        console.log(fieldType)
     }
 
     function handleAddFieldClick() {
@@ -248,14 +284,36 @@ function AddEntity() {
         setFieldChar("")
     }
 
-    // function create() {
-    //     if (!entityName || !selectedType) {
-    //         alert("Please fill in all fields.");
-    //         return;
-    //     }
-    //     updatetable(entityName, labelsingular, type)
-    //     setScreen("Home")
-    // }
+    const handleSave = async () => {
+        // console.log(entityName)
+        // console.log(labelsingular)
+        // console.log(labelplural)
+        // console.log(type)
+        // console.log(fields)
+        try {
+            if (!entityName || !type || !labelsingular || !labelplural || !fields) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            const entityFields = fields.map(field => ({
+                name: field.name,
+                required: field.required || false,
+                type: field.data_type,
+                field_name: field.name,
+                // default_value: field.default_value || '',
+                // field_constraints: field.field_constraints || '',
+                active: field.active || true
+            }));
+
+            const result = await createEntity(entityName, selectedType, labelsingular, labelplural, entityFields);
+            setEntityCreated(true);
+            setEntityID(result.data.id)
+            // alert('Entity created successfully:', result);
+        } catch (error) {
+            alert('Failed to create entity. Please try again.');
+        }
+    };
 
     function handleCancel() {
         setScreen("Home")
@@ -349,72 +407,78 @@ function AddEntity() {
                             <button className="cancel" onClick={handleCancel}>
                                 CANCEL
                             </button>
-                            <button className="create">
+                            <button className="create" onClick={handleSave}>
                                 SAVE
                             </button>
                         </div>
                     </div>
                 </div>
-                <div style={{ marginTop: "2rem" }}>
-                    <text className="heading">
-                        Entity Fields
-                    </text>
-                </div>
-                <div className="button-container-2">
-                    <button className="underlined-btn">Fields</button>
-                    <button className="underlined-btn-not-selected">Relationships</button>
-                    <button className="underlined-btn-not-selected">Formula</button>
-                    <Box display="flex" justifyContent={"flex-end"} width={sidePanelCollapsed ? "78.2%" : "74%"} >
-                        <SearchContainer>
-                            <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
-                        </SearchContainer>
-                        <button className="cancel"
-                            style={{
-                                fontSize: '16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                paddingLeft: '16px'
-                            }}
-                            onClick={handleAddFieldClick}>
-                            <AddIcon />
-                            Add Field
-                        </button>
-                    </Box>
-                </div>
-                <Paper sx={{ width: '98%', marginTop: '1rem' }}>
-                    <TableContainer >
-                        <FixedHeaderTable>
-                            <Table stickyHeader aria-label="sticky table">
-                                <TableHead >
-                                    <TableRow>
-                                        {columns.map((column) => (
-                                            <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                                                {column.label}
-                                            </StyledTableCell>
-                                        ))}
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {rows
-                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                        .map((row) => (
-                                            <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                                                {columns.map((column) => {
-                                                    const value = row[column.id];
-                                                    return (
-                                                        <TableCell key={column.id} align={column.align}>
-                                                            {value}
-                                                        </TableCell>
-                                                    );
-                                                })}
-                                            </TableRow>
-                                        ))}
-                                </TableBody>
-                            </Table>
-                        </FixedHeaderTable>
-                    </TableContainer>
-                </Paper>
+                {
+                    entityCreated && (
+                        <div className="entity-fields">
+                            <div style={{ marginTop: "2rem" }}>
+                                <text className="heading">
+                                    Entity Fields
+                                </text>
+                            </div>
+                            <div className="button-container-2">
+                                <button className="underlined-btn">Fields</button>
+                                <button className="underlined-btn-not-selected">Relationships</button>
+                                <button className="underlined-btn-not-selected">Formula</button>
+                                <Box display="flex" justifyContent={"flex-end"} width={sidePanelCollapsed ? "78.2%" : "74%"} >
+                                    <SearchContainer>
+                                        <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
+                                    </SearchContainer>
+                                    <button className="cancel"
+                                        style={{
+                                            fontSize: '16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            paddingLeft: '16px'
+                                        }}
+                                        onClick={handleAddFieldClick}>
+                                        <AddIcon />
+                                        Add Field
+                                    </button>
+                                </Box>
+                            </div>
+                            <Paper sx={{ width: '98%', marginTop: '1rem' }}>
+                                <TableContainer >
+                                    <FixedHeaderTable>
+                                        <Table stickyHeader aria-label="sticky table">
+                                            <TableHead >
+                                                <TableRow>
+                                                    {columns.map((column) => (
+                                                        <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
+                                                            {column.label}
+                                                        </StyledTableCell>
+                                                    ))}
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {rows
+                                                    .map((row) => (
+                                                        console.log(row),
+                                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                            {columns.map((column) => {
+                                                                const value = row[column.id];
+                                                                return (
+                                                                    <TableCell key={column.id} align={column.align}>
+                                                                        {value}
+                                                                    </TableCell>
+                                                                );
+                                                            })}
+                                                        </TableRow>
+                                                    ))}
+                                            </TableBody>
+                                        </Table>
+                                    </FixedHeaderTable>
+                                </TableContainer>
+                            </Paper>
+                        </div>
+                    )
+                }
             </div >
             <div className="dialog">
                 <div className="dialog-header">

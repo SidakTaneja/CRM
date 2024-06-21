@@ -1,4 +1,12 @@
 import React from "react";
+import { configureStore } from '@reduxjs/toolkit'
+
+export const store = configureStore({})
+// console.log(store.getState)
+
+// const screenReducer = (state = initialState, action) => {
+//     if (action.type) = 
+// }
 
 const tableData = [
     { name: 'Account', label: 'Account', type: 'Entity', module: 'Sales' },
