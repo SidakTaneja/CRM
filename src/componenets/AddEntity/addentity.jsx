@@ -28,10 +28,10 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CloseIcon from "@mui/icons-material/Close";
 
-function AddEntity() {
+function AddEntity({ selectedRow }) {
   const [type, setType] = useState("");
   const [selectedType, setSelectedType] = useState("");
-  const [selectedfieldType, setSelectedFieldType] = useState("");
+  const [selectedfieldType, setSelectedFieldType] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const [entityName, setEntityName] = useState("");
@@ -49,6 +49,7 @@ function AddEntity() {
   const [fieldChar, setFieldChar] = useState("");
   const [fieldTooltipText, setFieldTooltipText] = useState("");
   const [currentView, setCurrentView] = useState('fields'); // Added state for current view
+
 
   const initialColumns = [
     { id: "name", label: "Name", minWidth: 150 },
@@ -132,6 +133,15 @@ function AddEntity() {
     };
   }, []);
 
+  useEffect(() => {
+    if (selectedRow) {
+        setEntityName(selectedRow.name); // Populate entityName with selected row's name
+        setSelectedType(selectedRow.type);
+        setLabelsingular(selectedRow.label);
+        setLabelplural(selectedRow.label + 's');// Set selectedType with selected row's type
+    }
+}, [selectedRow]);
+
   const typeOptions = [
     { value: "base", label: "Base" },
     { value: "baseplus", label: "Base Plus" },
@@ -181,10 +191,11 @@ function AddEntity() {
     fontSize: "36px",
   });
 
-  function handleTypeSelect(option) {
-    setSelectedType(option);
-    setType(option.value);
+  function handleTypeSelect(event) {
+    setSelectedType(event.target.value); 
   }
+  
+
 
   function handleEntityNameChange(event) {
     setEntityName(capitalizeFirstLetter(event.target.value));
@@ -205,6 +216,14 @@ function AddEntity() {
     setIsDialogOpen(false);
   }
   
+  useEffect(() => {
+    if (selectedRow) {
+        setEntityName(selectedRow.name);
+        setFieldType(selectedRow.type);
+    }
+}, [selectedRow]);
+
+
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -343,31 +362,35 @@ function AddEntity() {
         <div className="box">
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", flexDirection: "row" }}>
-              <TextField
-                required
-                id="outlined-required"
-                label="Name"
-                defaultValue="Placeholder"
-                style={{ width: "32%" }}
-                value={entityName}
-                onChange={handleEntityNameChange}
-                onBlur={handleEntityNameBlur}
-              />
+            <TextField
+                            required
+                            id="outlined-required"
+                            label="Name"
+                            defaultValue=""
+                            style={{ width: '32%' }}
+                            // value={entityName}
+                            value={selectedType}
 
-              <TextField
-                id="outlined-select-currency"
-                select
-                label="Select"
-                defaultValue=""
-                style={{ width: "32%", marginLeft: "2rem" }}
-                onChange={handleTypeSelect}
-              >
-                {typeOptions.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
+                            onChange={handleEntityNameChange}
+                        />
+
+<TextField
+  id="outlined-select-currency"
+  select
+  label="Select"
+  value={selectedType}
+  onChange={handleTypeSelect}
+  style={{ width: '32%', marginLeft: '2rem' }}
+>
+  {typeOptions.map((option) => (
+    <MenuItem key={option.value} value={option.value}>
+      {option.label}
+    </MenuItem>
+  ))}
+</TextField>
+
+
+
 
               <TextField
                 required

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import {
     Box,
     Container,
@@ -36,7 +37,7 @@ function createData(name, label, type, module) {
 }
 
 const rows = [
-    createData('Account', 'Account', 'Entity', 'Sales'),
+    createData('Account', 'Account', 'Base', 'Sales'),
     createData('BpmnProcess', 'Process', 'Workflow', 'Advanced'),
     createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
     createData('BpmnUserTask', 'Process User Task', 'Task', 'Advanced'),
@@ -159,6 +160,18 @@ const StickyHeadTable = () => {
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const [screen, setScreen] = useState("")
     const sidePanelRef = useRef(null);
+    const [selectedRow, setSelectedRow] = useState(null); // State to hold selected row
+
+
+
+
+    const handleRowClick = (row) => {
+        setSelectedRow(row); // Update selectedRow state with clicked row data
+        setScreen("addentity");
+
+    };
+
+
 
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
@@ -177,13 +190,18 @@ const StickyHeadTable = () => {
         };
     }, []);
 
+  
+
     function handleCreateEntity() {
         setScreen("addentity")
     }
 
+  
+
     if (screen === "addentity") {
-        return <AddEntity />
+        return <AddEntity selectedRow={selectedRow} /> 
     }
+
 
     return (
         <><div style={{backgroundColor:'#f6f6fc'}}>
@@ -237,37 +255,31 @@ const StickyHeadTable = () => {
                         </Box>
                     </Box>
                     <Paper sx={{ width: '102.7%', marginTop: '1rem', marginLeft: sidePanelCollapsed ? '1.5%' : '3%' }}>
-                        <TableContainer >
-                            <FixedHeaderTable>
-                                <Table stickyHeader aria-label="sticky table">
-                                    <TableHead >
-                                        <TableRow>
-                                            {columns.map((column) => (
-                                                <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
-                                                    {column.label}
-                                                </StyledTableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {rows
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((row) => (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
-                                                    {columns.map((column) => {
-                                                        const value = row[column.id];
-                                                        return (
-                                                            <TableCell key={column.id} align={column.align}>
-                                                                {value}
-                                                            </TableCell>
-                                                        );
-                                                    })}
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </FixedHeaderTable>
-                        </TableContainer>
+                    <TableContainer component={Paper}>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Name</TableCell>
+            <TableCell>Label</TableCell>
+            <TableCell>Type</TableCell>
+            <TableCell>Module</TableCell>
+
+
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {rows.map((row, index) => (
+            <TableRow key={index} onClick={() => handleRowClick(row)} style={{ cursor: "pointer" }}>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.label}</TableCell>
+              <TableCell>{row.type}</TableCell>
+              <TableCell>{row.module}</TableCell>
+
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
                     </Paper>
                 </Container>
             </Box>

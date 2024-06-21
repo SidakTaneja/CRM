@@ -185,3 +185,8 @@ const SidePanel = ({ collapsed }) => {
 };
 
 export default SidePanel;
+
+
+
+
+
