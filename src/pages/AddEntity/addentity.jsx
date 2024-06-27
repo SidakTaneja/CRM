@@ -28,12 +28,15 @@ import {
     InputBase,
     Button
 } from '@mui/material';
-import { getDefaultfields, createEntity, getfields } from "../../hooks/API/api.jsx";
+import { getDefaultFields, createEntity, getFields, getFieldTypes, addField, useEntityID, getEnityData, updateEntity, updateField } from "../../hooks/API/api.jsx";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import LayoutManager from '../LayoutManager/layout';
 
-function AddEntity() {
+function AddEntity({ selectedEntityID }) {
     const [type, setType] = useState("");
     const [selectedType, setSelectedType] = useState("");
-    const [selectedfieldType, setSelectedFieldType] = useState("");
+    const [selectedfieldType, setSelectedFieldType] = useState();
     const [entityName, setEntityName] = useState("");
     const [labelsingular, setLabelsingular] = useState("");
     const [labelplural, setLabelplural] = useState("");
@@ -49,16 +52,62 @@ function AddEntity() {
     const [fields, setFields] = useState()
     const [entityCreated, setEntityCreated] = useState(false);
     const [entityID, setEntityID] = useState()
-    const [entityFields, setEntityFields] = useState()
+    const [typeOptionsfield, setTypeOptionsfield] = useState([]);
     const [rows, setRows] = useState([]);
+    const [modalOpen, setModalOpen] = useState(false)
+    const [rerender, setRerender] = useState(true)
+    const [editField, setEditField] = useState(false)
+    const [fieldId, setFieldId] = useState()
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const typeMapping = {
+        "Integer": { type: 1, selectedType: "Integer" },
+        "Bigint": { type: 2, selectedType: "Bigint" },
+        "Double": { type: 3, selectedType: "Double" },
+        "Boolean": { type: 4, selectedType: "Boolean" },
+        "String": { type: 5, selectedType: "String" },
+        "Date": { type: 6, selectedType: "Date" },
+        "Time": { type: 7, selectedType: "Time" },
+        "Timestamp": { type: 8, selectedType: "Timestamp" },
+        "Timestamp without time zone": { type: 9, selectedType: "Timestamp without time zone" },
+        "Uuid": { type: 10, selectedType: "Uuid" },
+        "Json": { type: 11, selectedType: "Json" },
+        "Array": { type: 12, selectedType: "Array" },
+    }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (selectedEntityID !== undefined && selectedEntityID !== null) {
+                    setEntityCreated(true)
+                    const result = await getEnityData(selectedEntityID)
+                    // console.log(result)
+                    setEntityName(result.name)
+                    setLabelsingular(result.singular_label)
+                    setLabelplural(result.plural_label)
+                    if (result.type === "Base" || result.type === "base") {
+                        setType(1);
+                        setSelectedType("Base");
+                    } else if (result.type === "Person" || result.type === "person") {
+                        setType(2);
+                        setSelectedType("Person");
+                    }
+                    setEntityID(selectedEntityID)
+                }
+            } catch (error) {
+                console.error('Error fetching entity:', error);
+            }
+        };
+        fetchData();
+    }, [selectedEntityID]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (type) {
-                    const result = await getDefaultfields(type);
+                    const result = await getDefaultFields(type);
                     setFields(result.fields)
-                    // console.log(result.fields);
+                    // console.log(fields)
                 }
             } catch (error) {
                 console.error('Error fetching entity:', error);
@@ -71,23 +120,45 @@ function AddEntity() {
         const fetchData = async () => {
             try {
                 if (entityID) {
-                    const result = await getfields(entityID)
-                    console.log(result)
+                    const result = await getFields(entityID)
+                    // console.log(result)
                     const transformedData = result.map(field => ({
+                        id: field.id,
+                        default: field.default_value,
+                        description: field.description,
                         name: capitalizeFirstLetter(String(field.name)),
                         label: (field.label),
                         type: capitalizeFirstLetter(String(field.type)),
                         required: (String(field.required))
                     }))
+                    // console.log(transformedData)
                     setRows(transformedData)
+                    setRerender(false)
                 }
             } catch (error) {
                 console.error('Error fetching entity:', error);
             }
         };
         fetchData();
-    }, [entityID]);
+    }, [entityID, rerender]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getFieldTypes();
+                const options = result
+                    .filter(item => item.category === 'data-type')
+                    .map((item, index) => ({
+                        value: index + 1,
+                        label: item.value.charAt(0).toUpperCase() + item.value.slice(1)
+                    }))
+                setTypeOptionsfield(options)
+            } catch (error) {
+                toast.error(error);
+            }
+        };
+        fetchData();
+    }, []);
 
     const columns = [
         { id: 'name', label: 'Name', minWidth: 150 },
@@ -95,7 +166,6 @@ function AddEntity() {
         { id: 'type', label: 'Type', minWidth: 150 },
         { id: 'required', label: 'Required', minWidth: 150 },
     ];
-
 
     const StyledTableCell = styled(TableCell)({
         color: '#613FAA',
@@ -132,6 +202,12 @@ function AddEntity() {
 
     });
 
+    const handleSubOptionClick = (option) => {
+        if (option === 'Layout Manager') {
+            setScreen('layoutmanager');
+        }
+    };
+
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
             setSidePanelCollapsed(true);
@@ -151,10 +227,7 @@ function AddEntity() {
 
     const typeOptions = [
         { value: 1, label: "Base" },
-        // { value: "baseplus", label: "Base Plus" },
-        // { value: "event", label: "Event" },
         { value: 2, label: "Person" },
-        // { value: "company", label: "Company" }
     ];
 
     const AdministrationText = styled(Button)({
@@ -198,21 +271,11 @@ function AddEntity() {
         fontSize: '36px',
     });
 
-
     const handleTypeSelect = (event) => {
         const selectedValue = event.target.value;
+        const selectedOption = typeOptions.find(option => option.value === selectedValue);
+        setSelectedType(selectedOption.label)
         setType(selectedValue);
-        // console.log(selectedValue)
-        switch (selectedValue) {
-            case 1:
-                setSelectedType("Base")
-                break;
-            case 2:
-                setSelectedType("Person")
-                break;
-            default:
-                console.log("Unknown type");
-        }
     };
 
     function handleEntityNameChange(event) {
@@ -257,42 +320,60 @@ function AddEntity() {
     }
 
     function handleFieldCharChange(event) {
-        setFieldChar(event.target.value)
+        const value = event.target.value;
+        if (/^\d*$/.test(value)) {
+            setFieldChar(value);
+        } else {
+            toast.error("Please enter an integer value.");
+        }
     }
 
-    function handleFieldTypeChange(option) {
-        setSelectedFieldType(option)
-        setFieldType(option.label)
-    }
+    const handleFieldTypeChange = (event) => {
+        const selectedValue = event.target.value;
+        const selectedOption = typeOptionsfield.find(option => option.value === selectedValue);
+        if (selectedOption) {
+            setSelectedFieldType(selectedValue);
+            setFieldType(selectedOption.label);
+        }
+    };
 
     function handleAddFieldClick() {
-        const dialog = document.querySelector('.dialog');
-        dialog.classList.add('dialog-open');
+        setEditField(false)
+        setModalOpen(true)
     }
 
     function handleCloseDialog() {
-        const dialog = document.querySelector('.dialog');
-        dialog.classList.remove('dialog-open');
+        handleClearAll()
+        setModalOpen(false)
     }
 
     function handleClear() {
+        if (editField) {
+            setFieldLabel("")
+            setFieldDefault("")
+            setFieldTooltipText("")
+        } else {
+            setFieldName("")
+            setFieldLabel("")
+            setFieldDefault("")
+            setFieldTooltipText("")
+            setSelectedFieldType(null)
+        }
+    }
+
+    function handleClearAll() {
         setFieldName("")
         setFieldLabel("")
-        setFieldType("")
         setFieldDefault("")
         setFieldTooltipText("")
-        setFieldChar("")
+        setSelectedFieldType(null)
+
     }
 
     const handleSave = async () => {
-        // console.log(entityName)
-        // console.log(labelsingular)
-        // console.log(labelplural)
-        // console.log(type)
-        // console.log(fields)
         try {
-            if (!entityName || !type || !labelsingular || !labelplural || !fields) {
-                alert("Please fill in all required fields.");
+            if (!entityName || !type || !labelsingular || !labelplural) {
+                toast.error("Please fill in all required fields.");
                 return;
             }
 
@@ -301,18 +382,76 @@ function AddEntity() {
                 required: field.required || false,
                 type: field.data_type,
                 field_name: field.name,
-                // default_value: field.default_value || '',
-                // field_constraints: field.field_constraints || '',
                 active: field.active || true
             }));
+            console.log(entityFields)
 
             const result = await createEntity(entityName, selectedType, labelsingular, labelplural, entityFields);
             setEntityCreated(true);
             setEntityID(result.data.id)
-            // alert('Entity created successfully:', result);
+            toast.success("Entity Created Successfully")
         } catch (error) {
-            alert('Failed to create entity. Please try again.');
+            toast.error('Failed to create entity. Please try again.');
         }
+    };
+
+    const handleUpdateEntity = async () => {
+        try {
+            if (!labelsingular || !labelplural) {
+                toast.error("Please fill in all the required fields")
+                return;
+            }
+
+            const result = await updateEntity(entityID, labelsingular, labelplural)
+            toast.success("Entity Updated Successfully")
+        } catch (error) {
+            toast.error('failed to update entity. Please try again.')
+        }
+    }
+
+    const handleUpdateField = async () => {
+        try {
+            if (!fieldLabel || !fieldTooltipText) {
+                toast.error("Please fill in all required fields.");
+                return;
+            }
+
+            const result = await updateField(selectedEntityID, fieldId, fieldLabel, fieldTooltipText, fieldDefault)
+            setRerender(true)
+            toast.success('Field updated successfully');
+            handleClear()
+        } catch (error) {
+            toast.error('Failed to update field. Please try again.');
+        }
+    }
+
+    const handleCreateField = async () => {
+        try {
+            if (!fieldName || !fieldLabel || !fieldType || !fieldTooltipText) {
+                toast.error("Please fill in all required fields.");
+                return;
+            }
+            const result = await addField(entityID, fieldName, fieldLabel, fieldDefault, fieldTooltipText, fieldType)
+            setRerender(true)
+            toast.success('Field created successfully');
+            handleClear()
+        } catch (error) {
+            toast.error('Failed to create entity. Please try again.');
+        }
+    }
+
+    const handleEdit = (row) => {
+        setModalOpen(false)
+        setModalOpen(true)
+        setFieldName(row.name)
+        setFieldDefault(row.default)
+        setFieldLabel(row.label)
+        setFieldTooltipText(row.description)
+        if (typeMapping[row.type]) {
+            setSelectedFieldType(typeMapping[row.type].type);
+        }
+        setEditField(true)
+        setFieldId(row.id)
     };
 
     function handleCancel() {
@@ -321,6 +460,10 @@ function AddEntity() {
 
     if (screen === "Home") {
         return <Home />
+    }
+
+    if (screen === "layoutmanager") {
+        return <LayoutManager />;
     }
 
     return (
@@ -336,7 +479,7 @@ function AddEntity() {
                 <LeftContainer>
                     <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize', color: '#71839B' }}>Administration</AdministrationText>
                     <ArrowRightIcon />
-                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Entity Manager</AdministrationText>
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }} onClick={() => setScreen("Home")}>Entity Manager</AdministrationText>
                     <ArrowRightIcon />
                     <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Create Entity</AdministrationText>
                 </LeftContainer>
@@ -350,8 +493,8 @@ function AddEntity() {
                 </RightContainer>
             </div>
             <div ref={sidePanelRef} onClick={handleClickOnPanel}>
-                <SidePanel collapsed={sidePanelCollapsed} />
-            </div>
+                <SidePanel collapsed={sidePanelCollapsed} onSubOptionClick={handleSubOptionClick} />
+            </div >
             <div className={`container ${sidePanelCollapsed ? "collapsed" : ""}`}>
                 <text className="heading">Create New Entity</text>
                 <div className="box">
@@ -366,15 +509,18 @@ function AddEntity() {
                                 value={entityName}
                                 onChange={handleEntityNameChange}
                                 onBlur={handleEntityNameBlur}
+                                disabled={entityCreated}
                             />
 
                             <TextField
                                 id="outlined-select-currency"
                                 select
                                 label="Select"
+                                value={type}
                                 defaultValue=""
                                 style={{ width: '32%', marginLeft: '2rem' }}
                                 onChange={handleTypeSelect}
+                                disabled={entityCreated}
                             >
                                 {typeOptions.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
@@ -407,9 +553,13 @@ function AddEntity() {
                             <button className="cancel" onClick={handleCancel}>
                                 CANCEL
                             </button>
-                            <button className="create" onClick={handleSave}>
+                            {!entityCreated && <button className="create" onClick={handleSave}>
                                 SAVE
-                            </button>
+                            </button>}
+                            {entityCreated && <button className="create" onClick={handleUpdateEntity}>
+                                UPDATE
+                            </button>}
+
                         </div>
                     </div>
                 </div>
@@ -459,8 +609,7 @@ function AddEntity() {
                                             <TableBody>
                                                 {rows
                                                     .map((row) => (
-                                                        console.log(row),
-                                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.name} onClick={() => handleEdit(row)}>
                                                             {columns.map((column) => {
                                                                 const value = row[column.id];
                                                                 return (
@@ -480,90 +629,102 @@ function AddEntity() {
                     )
                 }
             </div >
-            <div className="dialog">
-                <div className="dialog-header">
-                    <text className="heading">Add Fields</text>
-                    <CloseIcon onClick={handleCloseDialog} style={{ cursor: 'pointer' }} />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: "flex", flexDirection: "row", marginTop: "2rem" }}>
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Name"
-                            defaultValue="Placeholder"
-                            style={{ width: '50%' }}
-                            value={fieldName}
-                            onChange={handleFieldNameChange}
-                        />
+            {
+                modalOpen && <div className="dialog">
+                    <div>
+                        <div className="dialog-header">
+                            <text className="heading">Add Fields</text>
+                            <CloseIcon onClick={handleCloseDialog} style={{ cursor: 'pointer' }} />
+                        </div>
+                        <div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ display: "flex", flexDirection: "row", marginTop: "2rem" }}>
+                                    <TextField
+                                        required
+                                        id="outlined-required"
+                                        label="Name"
+                                        defaultValue="Placeholder"
+                                        style={{ width: '50%' }}
+                                        value={fieldName}
+                                        onChange={handleFieldNameChange}
+                                        disabled={editField}
+                                    />
 
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Label"
-                            defaultValue=""
-                            value={fieldLabel}
-                            onChange={handleFieldLabelChange}
-                            style={{ width: '50%', marginLeft: '1rem' }}
-                        />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
-                        <TextField
-                            id="outlined-select-currency"
-                            select
-                            label="Type"
-                            defaultValue={fieldType}
-                            style={{ width: '50%' }}
-                            onChange={handleFieldTypeChange}
-                        >
-                            {typeOptions.map((option) => (
-                                <MenuItem key={option.value} value={option.value}>
-                                    {option.label}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                                    <TextField
+                                        required
+                                        id="outlined-required"
+                                        label="Label"
+                                        defaultValue=""
+                                        value={fieldLabel}
+                                        onChange={handleFieldLabelChange}
+                                        style={{ width: '50%', marginLeft: '1rem' }}
+                                    />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                                    <TextField
+                                        id="outlined-select"
+                                        select
+                                        label="Select"
+                                        value={selectedfieldType}
+                                        style={{ width: '50%' }}
+                                        onChange={handleFieldTypeChange}
+                                        disabled={editField}
+                                    >
+                                        {typeOptionsfield.map((option) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </MenuItem>
+                                        ))}
+                                    </TextField>
 
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Default Value"
-                            defaultValue=""
-                            value={fieldDefault}
-                            onChange={handleFieldDefaultChange}
-                            style={{ width: '50%', marginLeft: '1rem' }}
-                        />
+                                    <TextField
+                                        id="outlined-required"
+                                        label="Default Value"
+                                        defaultValue=""
+                                        value={fieldDefault}
+                                        onChange={handleFieldDefaultChange}
+                                        style={{ width: '50%', marginLeft: '1rem' }}
+                                        disabled={editField}
+                                    />
+                                </div>
+                                <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                                    <TextField
+                                        required
+                                        id="Tool-tip Text"
+                                        label="Description"
+                                        style={{ width: '100%' }}
+                                        value={fieldTooltipText}
+                                        onChange={handleFieldToolChange}
+                                    />
+                                </div>
+                                {/* <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
+                                <TextField
+                                    required
+                                    id="outlined-required"
+                                    label="Char Limit"
+                                    defaultValue="Placeholder"
+                                    style={{ width: '50%' }}
+                                    value={fieldChar}
+                                    onChange={handleFieldCharChange}
+                                />
+                            </div> */}
+                            </div>
+                        </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
-                        <TextField
-                            required
-                            id="Tool-tip Text"
-                            label="Tool-tip Text"
-                            style={{ width: '100%' }}
-                            value={fieldTooltipText}
-                            onChange={handleFieldToolChange}
-                        />
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "row", marginTop: '1rem' }}>
-                        <TextField
-                            required
-                            id="outlined-required"
-                            label="Char Limit"
-                            defaultValue="Placeholder"
-                            style={{ width: '50%' }}
-                            value={fieldChar}
-                            onChange={handleFieldCharChange}
-                        />
-                    </div>
-                    <div className="button-container" >
+                    <div className="button-container">
                         <button className="cancel" onClick={handleClear}>
                             CLEAR
                         </button>
-                        <button className="create">
+                        {!editField && <button className="create" onClick={handleCreateField}>
                             SAVE
-                        </button>
+                        </button>}
+                        {editField && <button className="create" onClick={handleUpdateField}>
+                            UPDATE
+                        </button>}
                     </div>
                 </div>
-            </div>
+            }
+            <ToastContainer />
         </>
     );
 }

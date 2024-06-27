@@ -26,33 +26,33 @@ const subOptions = {
         'Users', 'Teams', 'Roles', 'Auth Log', 'Auth Tokens', 'Action History', 'API Users'
     ],
     Customization: [
-        'Entity Manager', 'Layout Manager', 'Label Manager', 'Template Manager', 'Report Filters', 'Report Panels'
+        'Entity Manager', 'Layout Manager',
     ],
     Messaging: [
         'Outbound Emails', 'Inbound Emails', 'Group Email Accounts', 'Personal Email Accounts', 'Email Filters',
         'Group Email Folders', 'Email Templates', 'SMS'
     ],
-    Portal: [
-        'Portals', 'Portal Users', 'Portal Roles'
-    ],
-    Setup: [
-        'Working Time Calendars', 'Layout Sets', 'Dashboard Templates', 'Lead Capture', 'PDF Templates', 'Webhooks', 'Authentication Providers'
-    ],
-    Data: [
-        'Import', 'Attachments', 'Jobs', 'Email Addresses', 'Phone Numbers'
-    ],
-    Misc: [
-        'Formula Sandbox'
-    ],
-    Workflows: [
-        'Workflows'
-    ],
-    Business: [
-        'Flowcharts', 'Processes'
-    ],
-    SalesPack: [
-        'Settings', 'Price Rule Conditions'
-    ]
+    // Portal: [
+    //     'Portals', 'Portal Users', 'Portal Roles'
+    // ],
+    // Setup: [
+    //     'Working Time Calendars', 'Layout Sets', 'Dashboard Templates', 'Lead Capture', 'PDF Templates', 'Webhooks', 'Authentication Providers'
+    // ],
+    // Data: [
+    //     // 'Import', 'Attachments', 'Jobs', 'Email Addresses', 'Phone Numbers'
+    // ],
+    // Misc: [
+    //     // 'Formula Sandbox'
+    // ],
+    // Workflows: [
+    //     // 'Workflows'
+    // ],
+    // Business: [
+    //     // 'Flowcharts', 'Processes'
+    // ],
+    // SalesPack: [
+    //     // 'Settings', 'Price Rule Conditions'
+    // ]
 };
 
 const menuIcons = {
@@ -104,8 +104,8 @@ const CompanyLabel = styled.div(({ collapsed }) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: collapsed ? 'center' : 'flex-start',
-    width: collapsed ? '40px' : 'auto', 
-    marginLeft: collapsed ? ' 17.5%':'',
+    width: collapsed ? '40px' : 'auto',
+    marginLeft: collapsed ? ' 17.5%' : '',
 }));
 
 const CompanyLogo = styled.img(({ collapsed }) => ({
@@ -136,6 +136,7 @@ const IconWrapper = styled(ListItemIcon)(({ collapsed }) => ({
 const SubOption = styled(ListItem)({
     paddingLeft: '20px',
     fontSize: '14px',
+    cursor: 'pointer',
 });
 
 const ArrowIcon = styled(ArrowDropDownIcon)(({ open }) => ({
@@ -143,7 +144,7 @@ const ArrowIcon = styled(ArrowDropDownIcon)(({ open }) => ({
     transition: 'transform 0.3s ease',
 }));
 
-const SidePanel = ({ collapsed }) => {
+const SidePanel = ({ collapsed, onSubOptionClick }) => {
     const [openMenus, setOpenMenus] = useState({});
 
     const handleToggleMenu = (menu) => {
@@ -171,7 +172,7 @@ const SidePanel = ({ collapsed }) => {
                         <Collapse in={openMenus[mainOption] && !collapsed} timeout="auto" unmountOnExit>
                             <List component="div" disablePadding>
                                 {subOptions[mainOption].map((subOption) => (
-                                    <SubOption key={subOption}>
+                                    <SubOption key={subOption} onClick={() => onSubOptionClick(subOption)}>
                                         <ListItemText primary={subOption} />
                                     </SubOption>
                                 ))}

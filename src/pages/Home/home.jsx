@@ -14,6 +14,8 @@ import {
     InputBase,
     Button
 } from '@mui/material';
+import deleteIcon from "../../componenets/Images/Vector.svg"
+import editIcon from "../../componenets/Images/editIcon.svg"
 import styled from '@emotion/styled';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -22,8 +24,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import SidePanel from '../../componenets/SidePanel/SidePanel';
 import AddEntity from '../AddEntity/addentity';
-import { getEntity, transformEntity } from '../../hooks/API/api';
-import { transform } from 'framer-motion';
+import { deleteEntity, getEntity } from '../../hooks/API/api';
+import { toast } from 'react-toastify';
+import LayoutManager from '../LayoutManager/layout';
 
 const columns = [
     { id: 'name', label: 'Name', minWidth: 150 },
@@ -123,43 +126,30 @@ const StickyHeadTable = () => {
     const [screen, setScreen] = useState("");
     const sidePanelRef = useRef(null);
     const [data, setData] = useState([]);
-
-    const capitalizeFirstLetter = (string) => {
-        if (!string) return '';
-        return string.charAt(0).toUpperCase() + string.slice(1);
-    };
+    const [entityID, setEntityID] = useState();
+    const [searchQuery, setSearchQuery] = useState("");
+    const [reRender, setRerender] = useState(true)
+    const display = true
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const result = await getEntity();
-                // console.log(result);
-                const transformedData = result.map(entity => {
-                    return {
-                        name: entity.name,
-                        label: entity.singular_label,
-                        type: capitalizeFirstLetter(entity.type),
-                        module: 'Custom'
-                    };
-                });
+                const transformedData = result.map(entity => ({
+                    id: entity.id,
+                    name: entity.name,
+                    label: entity.singular_label,
+                    type: capitalizeFirstLetter(entity.type),
+                    module: 'Custom'
+                }));
                 setData(transformedData);
-                // console.log(transformedData);
+                setRerender(false)
             } catch (error) {
                 console.error('Error fetching entity:', error);
             }
         };
         fetchData();
-    }, []);
-
-    const handleClickOutside = (event) => {
-        if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
-            setSidePanelCollapsed(true);
-        }
-    };
-
-    const handleClickOnPanel = () => {
-        setSidePanelCollapsed(false);
-    };
+    }, [reRender]);
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
@@ -168,12 +158,63 @@ const StickyHeadTable = () => {
         };
     }, []);
 
+    const handleClickOutside = (event) => {
+        if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
+            setSidePanelCollapsed(true);
+        }
+    };
+
+    const handleSubOptionClick = (option) => {
+        if (option === 'Layout Manager') {
+            setScreen('layoutmanager');
+        }
+    };
+
+    const capitalizeFirstLetter = (string) => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
+    const handleEdit = (row) => {
+        setEntityID(row.id);
+        setScreen("addentity");
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            const result = await deleteEntity(id)
+            toast.success("Entity Deleted Successfully")
+            setRerender(true)
+        }
+        catch (error) {
+            toast.error("Failed to delete entity. Please try again.")
+        }
+    }
+
+    const handleClickOnPanel = () => {
+        setSidePanelCollapsed(false);
+    };
+
     const handleCreateEntity = () => {
         setScreen("addentity");
     };
 
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+    };
+
+    const filteredData = data.filter(entity =>
+        entity.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entity.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entity.type.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (screen === "addentity") {
-        return <AddEntity />;
+        return <AddEntity selectedEntityID={entityID} />;
+    }
+
+    if (screen === "layoutmanager") {
+        return <LayoutManager />;
     }
 
     return (
@@ -204,7 +245,7 @@ const StickyHeadTable = () => {
 
             <Box display="flex" width="100%" style={{ marginTop: "1%", padding: 0, backgroundColor: '#f6f6fc' }}>
                 <div ref={sidePanelRef} onClick={handleClickOnPanel}>
-                    <SidePanel collapsed={sidePanelCollapsed} />
+                    <SidePanel collapsed={sidePanelCollapsed} onSubOptionClick={handleSubOptionClick} />
                 </div>
                 <Container
                     style={{
@@ -220,18 +261,23 @@ const StickyHeadTable = () => {
                         <Typography variant="" style={{ fontWeight: '600', fontSize: '22px' }}>Entity Manager</Typography>
                         <Box display="flex" alignItems="center">
                             <SearchContainer>
-                                <SearchInput placeholder="Search" endAdornment={<SearchIcon />} />
+                                <SearchInput
+                                    placeholder="Search"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    endAdornment={<SearchIcon />}
+                                />
                             </SearchContainer>
                             <CreateButton variant="contained" startIcon={<AddIcon />} onClick={handleCreateEntity}>
-                                Create
+                                Create Entity
                             </CreateButton>
                         </Box>
                     </Box>
                     <Paper sx={{ width: '102.7%', marginTop: '1rem', marginLeft: sidePanelCollapsed ? '1.5%' : '3%' }}>
-                        <TableContainer >
+                        <TableContainer>
                             <FixedHeaderTable>
                                 <Table stickyHeader aria-label="sticky table">
-                                    <TableHead >
+                                    <TableHead>
                                         <TableRow>
                                             {columns.map((column) => (
                                                 <StyledTableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
@@ -241,20 +287,34 @@ const StickyHeadTable = () => {
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {data
-                                            .map((row, index) => (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-
-                                                    {columns.map((column) => {
-                                                        const value = row[column.id];
-                                                        return (
-                                                            <TableCell key={column.id} align={column.align}>
-                                                                {value}
-                                                            </TableCell>
-                                                        );
-                                                    })}
-                                                </TableRow>
-                                            ))}
+                                        {filteredData.map((row, index) => (
+                                            <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                                {columns.map((column) => {
+                                                    const value = row[column.id];
+                                                    return (
+                                                        <TableCell key={column.id} align={column.align}>
+                                                            {value}
+                                                        </TableCell>
+                                                    );
+                                                })}
+                                                {display && <TableCell>
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                        <button
+                                                            className='edit'
+                                                            onClick={() => handleEdit(row)}
+                                                        >
+                                                            <img src={editIcon} />
+                                                        </button>
+                                                        <button
+                                                            className='delete'
+                                                            onClick={() => handleDelete(row.id)}
+                                                            hover={{ backgroundColor: "red" }}>
+                                                            <img src={deleteIcon} />
+                                                        </button>
+                                                    </div>
+                                                </TableCell>}
+                                            </TableRow>
+                                        ))}
                                     </TableBody>
                                 </Table>
                             </FixedHeaderTable>
