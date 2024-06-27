@@ -184,19 +184,19 @@ const Layout = () => {
         setEntitySelected(true);
     };
 
-    const filteredEntities = entities.filter(entity =>
-        entity.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // const filteredEntities = entities.filter(entity =>
+    //     entity.name.toLowerCase().includes(searchTerm.toLowerCase())
+    // );
 
-    // const filteredEntities = [
-    //     { id: 1, name: "Entity One" },
-    //     { id: 2, name: "Entity Two" },
-    //     { id: 3, name: "Entity Three" },
-    //     { id: 4, name: "Entity Four" },
-    //     { id: 5, name: "Entity Five" },
-    //     { id: 6, name: "Entity Six" },
-    //     { id: 7, name: "Entity Seven" },
-    // ];
+    const filteredEntities = [
+        { id: 1, name: "Entity One" },
+        { id: 2, name: "Entity Two" },
+        { id: 3, name: "Entity Three" },
+        { id: 4, name: "Entity Four" },
+        { id: 5, name: "Entity Five" },
+        { id: 6, name: "Entity Six" },
+        { id: 7, name: "Entity Seven" },
+    ];
 
     const handleCreateEntity = () => {
         setScreen("formbuilder");
