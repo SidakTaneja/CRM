@@ -33,18 +33,6 @@ const FormBuilder = ({ entity_id }) => {
         };
     }, []);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await getLayout(entity_id, 'type');
-                console.log(result)
-            } catch (error) {
-                toast.error(error);
-            }
-        };
-        fetchData()
-    }, []);
-
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
             setSidePanelCollapsed(true);
@@ -170,7 +158,7 @@ const FormBuilder = ({ entity_id }) => {
                     <Typography variant="h6" style={{ fontWeight: 'bold', fontSize: '24px', marginBottom: '10px' }}>
                         Form
                     </Typography>
-                    <WhiteBox> <Form /></WhiteBox>
+                    <WhiteBox> <Form entity_id={entity_id} /></WhiteBox>
 
                 </Box>
 

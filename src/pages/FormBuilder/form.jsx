@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { FormControl, FormLabel, RadioGroup, Radio } from '@mui/material';
 import { InputLabel, Select, MenuItem, Grid } from '@mui/material';
+import { getLayout } from '../../hooks/API/api';
 
-const Form = () => {
+const Form = ({ entity_id }) => {
     const [formValues, setFormValues] = useState({});
     const [formErrors, setFormErrors] = useState({});
 
@@ -11,22 +12,38 @@ const Form = () => {
         "rows": [
             [
                 {
-                    "name": { label: 'Name', type: 'text' }
+                    "name": "name",
+                    "type": "text"
                 },
                 {
-                    "boom": { label: 'Pika', type: 'text' }
+                    "pika": "active",
+                    "type": "checkbox"
                 }
             ],
             [
                 {
-                    "shuru": { label: 'Start Time', type: 'text' }
+                    "type": "text",
+                    "Start Time": "fee"
                 },
                 {
-                    "khatam": { label: 'End Time', type: 'text' }
+                    "type": "text",
+                    "End Time": "id"
                 }
             ]
         ]
     };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getLayout(entity_id, 'type');
+                console.log(result)
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchData()
+    }, []);
 
     const handleInputChange = (fieldId, value) => {
         setFormValues({
