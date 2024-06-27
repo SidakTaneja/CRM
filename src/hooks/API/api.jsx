@@ -11,6 +11,39 @@ export async function getEntity() {
     }
 }
 
+export async function getLayout(entity_id, type) {
+    try {
+
+        let config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: 'http://localhost:8080/entity-management/layout/' + entity_id + '?type=' + type,
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Connection': 'keep-alive',
+                'Content-Type': 'application/json',
+                'Origin': 'http://localhost:3000',
+                'Referer': 'http://localhost:3000/',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-site',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0',
+                'X-TenantId': 'crm',
+                'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Microsoft Edge";v="126"',
+                'sec-ch-ua-mobile': '?0',
+                'sec-ch-ua-platform': '"Windows"'
+            }
+        };
+
+        const response = await axios(config)
+        return response.data;
+
+    } catch (error) {
+        throw { error }
+    }
+}
+
 export async function deleteEntity(id) {
     try {
         let config = {

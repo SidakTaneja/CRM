@@ -12,10 +12,12 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SidePanel from "../../componenets/SidePanel/SidePanel.js";
 import LayoutManager from '../LayoutManager/layout';
 import Home from '../Home/home';
-
 import Form from './form';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { getLayout } from '../../hooks/API/api.jsx';
 
-const FormBuilder = () => {
+const FormBuilder = ({ entity_id }) => {
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const [screen, setScreen] = useState("");
     const sidePanelRef = useRef(null);
@@ -31,6 +33,17 @@ const FormBuilder = () => {
         };
     }, []);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const result = await getLayout(entity_id, 'type');
+                console.log(result)
+            } catch (error) {
+                toast.error(error);
+            }
+        };
+        fetchData()
+    }, []);
 
     const handleClickOutside = (event) => {
         if (sidePanelRef.current && !sidePanelRef.current.contains(event.target)) {
@@ -96,7 +109,7 @@ const FormBuilder = () => {
         },
     });
 
-    
+
     const handleSubOptionClick = (option) => {
         if (option === 'Layout Manager') {
             setScreen('layoutmanager');
@@ -105,9 +118,9 @@ const FormBuilder = () => {
         if (option === 'Entity Manager') {
             setScreen('entitymanager');
         }
-    }; 
+    };
 
- 
+
 
     if (screen === "layoutmanager") {
         return <LayoutManager />;
@@ -117,7 +130,7 @@ const FormBuilder = () => {
         return <Home />;
     }
 
-   
+
 
 
 
@@ -149,7 +162,7 @@ const FormBuilder = () => {
                 </RightContainer>
             </div>
             <div ref={sidePanelRef} onClick={handleClickOnPanel}>
-            <SidePanel collapsed={sidePanelCollapsed} onSubOptionClick={handleSubOptionClick} />
+                <SidePanel collapsed={sidePanelCollapsed} onSubOptionClick={handleSubOptionClick} />
             </div>
 
             <Box display="flex" justifyContent="space-between" margin="20px 0" marginLeft={sidePanelCollapsed ? '6%' : '22%'}>
