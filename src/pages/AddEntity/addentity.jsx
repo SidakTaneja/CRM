@@ -312,6 +312,9 @@ function AddEntity({ selectedEntityID }) {
     }
 
     function handleFieldDefaultChange(event) {
+        if (fieldType === "") {
+            setFieldDefault(null)
+        }
         setFieldDefault(event.target.value)
     }
 
@@ -338,6 +341,7 @@ function AddEntity({ selectedEntityID }) {
     };
 
     function handleAddFieldClick() {
+        handleClearAll()
         setEditField(false)
         setModalOpen(true)
     }

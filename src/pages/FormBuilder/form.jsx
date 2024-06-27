@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { FormControl, FormLabel, RadioGroup, Radio } from '@mui/material';
 import { InputLabel, Select, MenuItem, Grid } from '@mui/material';
-import { getLayout } from '../../hooks/API/api';
+import { addData, getLayout } from '../../hooks/API/api';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Form = ({ entity_id, entity_name }) => {
     const [formValues, setFormValues] = useState({});
@@ -57,8 +59,9 @@ const Form = ({ entity_id, entity_name }) => {
     const handleCheckboxChange = (fieldId) => (event) => {
         setFormValues({
             ...formValues,
-            [fieldId]: event.target.checked ? 1 : 0
+            [fieldId]: String(event.target.checked)
         });
+        console.log(event.target.value)
     };
 
     const handleRadioChange = (fieldId) => (event) => {
@@ -82,7 +85,7 @@ const Form = ({ entity_id, entity_name }) => {
         });
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const errors = {};
@@ -102,9 +105,16 @@ const Form = ({ entity_id, entity_name }) => {
             return;
         }
 
-        const formDataJSON = JSON.stringify(formValues, null, 2);
-        console.log('Form Data:', formDataJSON);
+        try {
+            await addData(entity_name, formValues);
+            toast.success("Data added");
+            setFormValues({});
+            setFormErrors({});
+        } catch (error) {
+            toast.error("Failed to add data");
+        }
     };
+
 
     return (
         <form onSubmit={handleSubmit}>
@@ -142,7 +152,7 @@ const Form = ({ entity_id, entity_name }) => {
                                     {field.type === 'checkbox' && (
                                         <FormControlLabel
                                             control={<Checkbox
-                                                checked={formValues[fieldName] === 1}
+                                                checked={formValues[fieldName] || false}
                                                 onChange={handleCheckboxChange(fieldName)}
                                             />}
                                             label={fieldLabel}

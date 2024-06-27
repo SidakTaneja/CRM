@@ -44,6 +44,29 @@ export async function getLayout(entity_id, type) {
     }
 }
 
+export async function addData(entity_name, JSONdata) {
+    try {
+        let data = JSON.stringify({
+            "table": entity_name,
+            "data": JSONdata
+        });
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'http://localhost:8080/entity-management/crud',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: data
+        };
+        const response = await axios(config);
+        return response
+    } catch (error) {
+        throw { error };
+    }
+}
+
 export async function deleteEntity(id) {
     try {
         let config = {
