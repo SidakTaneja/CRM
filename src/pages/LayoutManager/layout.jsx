@@ -137,6 +137,7 @@ const Layout = () => {
     const [entitySelected, setEntitySelected] = useState(false);
     const [entities, setEntities] = useState([])
     const [entityID, setEntityID] = useState()
+    const [entityName, setEntityName] = useState("")
 
     useEffect(() => {
         const fetchData = async () => {
@@ -181,6 +182,7 @@ const Layout = () => {
     const handleEntityClick = (entity) => {
         setSelectedEntity(entity);
         setEntityID(entity.entity_id)
+        setEntityName(entity.name)
         setEntitySelected(true);
     };
 
@@ -213,7 +215,7 @@ const Layout = () => {
     }
 
     if (screen === 'formbuilder') {
-        return <FormBuilder entity_id={entityID} />
+        return <FormBuilder entity_id={entityID} entity_name={entityName} />
     }
 
     const columns = [

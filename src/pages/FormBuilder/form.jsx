@@ -4,46 +4,48 @@ import { FormControl, FormLabel, RadioGroup, Radio } from '@mui/material';
 import { InputLabel, Select, MenuItem, Grid } from '@mui/material';
 import { getLayout } from '../../hooks/API/api';
 
-const Form = ({ entity_id }) => {
+const Form = ({ entity_id, entity_name }) => {
     const [formValues, setFormValues] = useState({});
     const [formErrors, setFormErrors] = useState({});
+    const [formData, setFormData] = useState(null);
 
-    const formData = {
-        "rows": [
-            [
-                {
-                    "name": "name",
-                    "type": "text"
-                },
-                {
-                    "pika": "active",
-                    "type": "checkbox"
-                }
-            ],
-            [
-                {
-                    "type": "text",
-                    "Start Time": "fee"
-                },
-                {
-                    "type": "text",
-                    "End Time": "id"
-                }
-            ]
-        ]
-    };
+    // const formData = {
+    //     "rows": [
+    //         [
+    //             {
+    //                 "name": "name",
+    //                 "type": "radio"
+    //             },
+    //             {
+    //                 "pika": "active",
+    //                 "type": "checkbox"
+    //             }
+    //         ],
+    //         [
+    //             {
+    //                 "Start Time": "fee",
+    //                 "type": "text"
+    //             },
+    //             {
+    //                 "End Time": "id",
+    //                 "type": "text"
+    //             }
+    //         ]
+    //     ]
+    // };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await getLayout(entity_id, 'type');
-                console.log(result)
+                const result = await getLayout(entity_id, 'list');
+                console.log(result.layout_data, entity_name)
+                setFormData(result.layout_data);
             } catch (error) {
                 console.log(error);
             }
         };
-        fetchData()
-    }, []);
+        fetchData();
+    }, [entity_id]);
 
     const handleInputChange = (fieldId, value) => {
         setFormValues({
@@ -55,7 +57,7 @@ const Form = ({ entity_id }) => {
     const handleCheckboxChange = (fieldId) => (event) => {
         setFormValues({
             ...formValues,
-            [fieldId]: event.target.checked
+            [fieldId]: event.target.checked ? 1 : 0
         });
     };
 
@@ -84,11 +86,16 @@ const Form = ({ entity_id }) => {
         event.preventDefault();
 
         const errors = {};
-        formData.rows.flat().forEach(row => {
-            const [fieldId, fieldData] = Object.entries(row)[0];
-            if (!formValues[fieldId]) {
-                errors[fieldId] = 'This field is required';
-            }
+        formData.rows.forEach(row => {
+            row.forEach(field => {
+                const fieldEntries = Object.entries(field).filter(([key, value]) => key !== 'type');
+                const fieldLabel = fieldEntries[0][0];
+                const fieldName = fieldEntries[0][1];
+
+                if (!formValues[fieldName] && field.type !== 'checkbox' && field.type !== 'radio') {
+                    errors[fieldName] = 'This field is required';
+                }
+            });
         });
         if (Object.keys(errors).length > 0) {
             setFormErrors(errors);
@@ -102,9 +109,11 @@ const Form = ({ entity_id }) => {
     return (
         <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-                {formData.rows.map((row, rowIndex) => (
+                {formData?.rows?.map((row, rowIndex) => (
                     row.map((field, columnIndex) => {
-                        const [fieldId, fieldData] = Object.entries(field)[0];
+                        const fieldEntries = Object.entries(field).filter(([key, value]) => key !== 'type');
+                        const fieldLabel = fieldEntries[0][0];
+                        const fieldName = fieldEntries[0][1];
 
                         return (
                             <Grid
@@ -118,37 +127,37 @@ const Form = ({ entity_id }) => {
                                 }}
                             >
                                 <Box marginBottom="10px">
-                                    {fieldData.type === 'text' && (
+                                    {field.type === 'text' && (
                                         <TextField
                                             fullWidth
-                                            id={fieldId}
-                                            label={fieldData.label}
+                                            id={fieldName}
+                                            label={fieldLabel}
                                             variant="outlined"
-                                            value={formValues[fieldId] || ''}
-                                            onChange={(e) => handleInputChange(fieldId, e.target.value)}
-                                            error={Boolean(formErrors[fieldId])}
-                                            helperText={formErrors[fieldId]}
+                                            value={formValues[fieldName] || ''}
+                                            onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                            error={Boolean(formErrors[fieldName])}
+                                            helperText={formErrors[fieldName]}
                                         />
                                     )}
-                                    {fieldData.type === 'checkbox' && (
+                                    {field.type === 'checkbox' && (
                                         <FormControlLabel
                                             control={<Checkbox
-                                                checked={Boolean(formValues[fieldId])}
-                                                onChange={handleCheckboxChange(fieldId)}
+                                                checked={formValues[fieldName] === 1}
+                                                onChange={handleCheckboxChange(fieldName)}
                                             />}
-                                            label={fieldData.label}
+                                            label={fieldLabel}
                                         />
                                     )}
-                                    {fieldData.type === 'radio' && (
+                                    {field.type === 'radio' && (
                                         <FormControl component="fieldset">
-                                            <FormLabel component="legend">{fieldData.label}</FormLabel>
+                                            <FormLabel component="legend">{fieldLabel}</FormLabel>
                                             <RadioGroup
-                                                aria-label={fieldData.label}
-                                                name={fieldId}
-                                                value={formValues[fieldId] || ''}
-                                                onChange={handleRadioChange(fieldId)}
+                                                aria-label={fieldLabel}
+                                                name={fieldName}
+                                                value={formValues[fieldName] || ''}
+                                                onChange={handleRadioChange(fieldName)}
                                             >
-                                                {fieldData.options.map(option => (
+                                                {field.options.map(option => (
                                                     <FormControlLabel
                                                         key={option.value}
                                                         value={option.value}
@@ -159,33 +168,33 @@ const Form = ({ entity_id }) => {
                                             </RadioGroup>
                                         </FormControl>
                                     )}
-                                    {fieldData.type === 'select' && (
+                                    {field.type === 'select' && (
                                         <FormControl fullWidth>
-                                            <InputLabel id={`${fieldId}-label`}>{fieldData.label}</InputLabel>
+                                            <InputLabel id={`${fieldName}-label`}>{fieldLabel}</InputLabel>
                                             <Select
-                                                labelId={`${fieldId}-label`}
-                                                id={fieldId}
-                                                value={formValues[fieldId] || ''}
-                                                onChange={handleSelectChange(fieldId)}
+                                                labelId={`${fieldName}-label`}
+                                                id={fieldName}
+                                                value={formValues[fieldName] || ''}
+                                                onChange={handleSelectChange(fieldName)}
                                                 variant="outlined"
                                             >
-                                                {fieldData.options.map(option => (
+                                                {field.options.map(option => (
                                                     <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
                                                 ))}
                                             </Select>
                                         </FormControl>
                                     )}
-                                    {fieldData.type === 'date' && (
+                                    {field.type === 'date' && (
                                         <TextField
                                             fullWidth
-                                            id={fieldId}
-                                            label={fieldData.label}
+                                            id={fieldName}
+                                            label={fieldLabel}
                                             type="date"
                                             InputLabelProps={{
                                                 shrink: true,
                                             }}
-                                            value={formValues[fieldId] || ''}
-                                            onChange={handleDateChange(fieldId)}
+                                            value={formValues[fieldName] || ''}
+                                            onChange={handleDateChange(fieldName)}
                                             variant="outlined"
                                         />
                                     )}

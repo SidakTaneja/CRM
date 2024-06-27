@@ -17,7 +17,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getLayout } from '../../hooks/API/api.jsx';
 
-const FormBuilder = ({ entity_id }) => {
+const FormBuilder = ({ entity_id, entity_name }) => {
     const [sidePanelCollapsed, setSidePanelCollapsed] = useState(true);
     const [screen, setScreen] = useState("");
     const sidePanelRef = useRef(null);
@@ -118,10 +118,6 @@ const FormBuilder = ({ entity_id }) => {
         return <Home />;
     }
 
-
-
-
-
     return (
         <div style={{ backgroundColor: '#f6f6fc' }}>
             <div className="headers" style={{
@@ -158,7 +154,7 @@ const FormBuilder = ({ entity_id }) => {
                     <Typography variant="h6" style={{ fontWeight: 'bold', fontSize: '24px', marginBottom: '10px' }}>
                         Form
                     </Typography>
-                    <WhiteBox> <Form entity_id={entity_id} /></WhiteBox>
+                    <WhiteBox> <Form entity_id={entity_id} entity_name={entity_name} /></WhiteBox>
 
                 </Box>
 

@@ -17,7 +17,7 @@ export async function getLayout(entity_id, type) {
         let config = {
             method: 'get',
             maxBodyLength: Infinity,
-            url: 'http://localhost:8080/entity-management/layout/' + entity_id + '?type=' + type,
+            url: 'http://localhost:8080/entity-management/layout?entityId=' + entity_id + '&type=' + type,
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Accept-Language': 'en-US,en;q=0.9',
