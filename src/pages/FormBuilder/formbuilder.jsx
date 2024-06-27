@@ -10,6 +10,8 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SidePanel from "../../componenets/SidePanel/SidePanel.js";
+import LayoutManager from '../LayoutManager/layout';
+import Home from '../Home/home';
 
 import Form from './form';
 
@@ -94,6 +96,29 @@ const FormBuilder = () => {
         },
     });
 
+    
+    const handleSubOptionClick = (option) => {
+        if (option === 'Layout Manager') {
+            setScreen('layoutmanager');
+        }
+
+        if (option === 'Entity Manager') {
+            setScreen('entitymanager');
+        }
+    }; 
+
+ 
+
+    if (screen === "layoutmanager") {
+        return <LayoutManager />;
+    }
+
+    if (screen === "entitymanager") {
+        return <Home />;
+    }
+
+   
+
 
 
     return (
@@ -110,7 +135,7 @@ const FormBuilder = () => {
                 <LeftContainer>
                     <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize', color: '#71839B' }}>Administration</AdministrationText>
                     <ArrowRightIcon />
-                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Entity </AdministrationText>
+                    <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }} onClick={() => setScreen("Layout")}>Entity </AdministrationText>
                     <ArrowRightIcon />
                     <AdministrationText style={{ fontSize: '14px', textTransform: 'capitalize' }}>Form </AdministrationText>
                 </LeftContainer>
@@ -124,7 +149,7 @@ const FormBuilder = () => {
                 </RightContainer>
             </div>
             <div ref={sidePanelRef} onClick={handleClickOnPanel}>
-                <SidePanel collapsed={sidePanelCollapsed} />
+            <SidePanel collapsed={sidePanelCollapsed} onSubOptionClick={handleSubOptionClick} />
             </div>
 
             <Box display="flex" justifyContent="space-between" margin="20px 0" marginLeft={sidePanelCollapsed ? '6%' : '22%'}>
